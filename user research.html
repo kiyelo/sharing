@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>이런 서비스, 어떠세요?</title>
+<style>
+  :root{
+    --orange:#EB6812; --orange-d:#BC4E08; --orange-l:#FFF1E6;
+    --blue:#256DD6; --blue-l:#EAF1FC;
+    --ink:#2A2622; --gray:#7A746E; --line:#ECE4DB;
+    --card:#FAF4ED; --cream:#FFF7F0; --bg:#FFFFFF;
+    --maxw:840px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    color:var(--ink); background:var(--bg);
+    line-height:1.65; -webkit-font-smoothing:antialiased;
+    scroll-snap-type:y proximity;
+  }
+  /* progress bar */
+  #bar{position:fixed;top:0;left:0;height:4px;width:0%;
+    background:linear-gradient(90deg,#FF8A3D,var(--orange));z-index:50;transition:width .1s linear;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px;}
+  section{scroll-snap-align:start;}
+
+  /* HERO */
+  .hero{
+    background:linear-gradient(135deg,#FF8A3D 0%,var(--orange) 55%,var(--orange-d) 100%);
+    color:#fff;border-radius:0 0 34px 34px;padding:54px 0 60px;position:relative;overflow:hidden;
+  }
+  .hero::after{content:"";position:absolute;right:-80px;top:-80px;width:260px;height:260px;
+    background:rgba(255,255,255,.12);border-radius:50%;}
+  .hero::before{content:"";position:absolute;left:-60px;bottom:-90px;width:200px;height:200px;
+    background:rgba(255,255,255,.10);border-radius:50%;}
+  .pill{display:inline-block;background:var(--orange-d);color:#fff;font-size:14px;font-weight:600;
+    padding:7px 16px;border-radius:999px;letter-spacing:.2px;position:relative;z-index:1;}
+  .hero h1{font-size:clamp(34px,8vw,54px);font-weight:800;margin:18px 0 12px;line-height:1.15;position:relative;z-index:1;}
+  .hero p{font-size:clamp(15px,3.6vw,19px);color:#FFE9D8;position:relative;z-index:1;}
+  .scrollcue{margin-top:30px;font-size:13px;color:#FFE3CE;display:flex;align-items:center;gap:8px;position:relative;z-index:1;}
+  .scrollcue .dot{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);
+    display:grid;place-items:center;animation:bob 1.4s ease-in-out infinite;}
+  @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+
+  /* SECTION */
+  .sec{padding:54px 0 10px;}
+  .sechead{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+  .num{flex:none;width:44px;height:44px;border-radius:13px;background:var(--orange);color:#fff;
+    font-weight:800;font-size:21px;display:grid;place-items:center;box-shadow:0 6px 16px rgba(235,104,18,.28);}
+  .sechead h2{font-size:clamp(24px,5.6vw,32px);font-weight:800;}
+
+  .lead{font-size:clamp(18px,4.4vw,23px);font-weight:700;line-height:1.5;
+    border-left:5px solid var(--orange);padding:6px 0 6px 18px;margin-bottom:18px;}
+  .lead .hl{color:var(--orange);}
+  .muted{color:var(--gray);font-size:clamp(14px,3.6vw,16px);margin:14px 2px 0;}
+  .step{font-weight:700;margin:6px 2px 14px;font-size:clamp(15px,3.8vw,17px);}
+
+  /* side cards */
+  .sides{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:560px){.sides{grid-template-columns:1fr;}}
+  .scard{background:var(--card);border-radius:20px;padding:22px 22px 24px;position:relative;
+    border:1px solid var(--line);}
+  .scard.blue{background:var(--blue-l);}
+  .scard .tag{display:inline-block;font-weight:800;font-size:17px;margin-bottom:8px;}
+  .scard.org .tag{color:var(--orange);}
+  .scard.blu .tag{color:var(--blue);}
+  .scard p{font-size:15.5px;line-height:1.62;}
+  .scard .ic{font-size:26px;margin-bottom:6px;display:block;}
+
+  /* example cards */
+  .subhead{font-size:clamp(18px,4.4vw,21px);font-weight:800;margin:34px 0 16px;display:flex;align-items:center;gap:9px;}
+  .subhead .sq{width:10px;height:22px;border-radius:4px;background:var(--orange);display:inline-block;}
+  .ex{display:grid;gap:13px;}
+  .ecard{display:flex;gap:15px;align-items:flex-start;background:#fff;border:1px solid var(--line);
+    border-radius:18px;padding:18px 20px;transition:transform .18s ease,box-shadow .18s ease;}
+  .ecard:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.06);}
+  .ecard .bullet{flex:none;width:13px;height:13px;border-radius:50%;background:var(--orange);margin-top:7px;}
+  .ecard .et{font-weight:800;font-size:16.5px;margin-bottom:3px;}
+  .ecard .eb{color:var(--gray);font-size:14.5px;line-height:1.55;}
+
+  /* questions */
+  .qs{display:grid;gap:14px;}
+  .q{display:flex;gap:16px;align-items:flex-start;background:#fff;border:1px solid var(--line);
+    border-radius:16px;padding:18px 20px;transition:border-color .18s ease,box-shadow .18s ease;}
+  .q:hover{box-shadow:0 8px 20px rgba(0,0,0,.05);}
+  .q .qn{flex:none;width:34px;height:34px;border-radius:10px;color:#fff;font-weight:800;font-size:16px;
+    display:grid;place-items:center;}
+  .sec.org .q:hover{border-color:#FAC79E;}
+  .sec.blue .q:hover{border-color:#A9C6F2;}
+  .q.org .qn{background:var(--orange);} .q.blu .qn{background:var(--blue);}
+  .q p{font-size:16px;line-height:1.6;padding-top:3px;}
+  .q .hint{color:var(--gray);font-size:14px;}
+
+  /* note */
+  .note{background:var(--cream);border-left:5px solid var(--orange);border-radius:14px;
+    padding:20px 22px;color:var(--gray);font-size:14.5px;line-height:1.6;margin:40px 0;}
+  footer{text-align:center;color:#B8B0A8;font-size:12.5px;padding:14px 0 40px;}
+
+  /* reveal animation */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .6s ease,transform .6s ease;}
+  .reveal.show{opacity:1;transform:none;}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;}}
+</style>
+</head>
+<body>
+<div id="bar"></div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="pill">산업 부품·자재 거래 서비스</span>
+    <h1>이런 서비스,<br/>어떠세요?</h1>
+    <p>잠깐 5분만 의견 들려주세요 · 정답은 없습니다</p>
+    <div class="scrollcue"><span class="dot">↓</span> 아래로 내려서 살펴보세요</div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <!-- 1. 서비스 설명 -->
+  <section class="sec">
+    <div class="sechead reveal"><div class="num">1</div><h2>서비스 설명</h2></div>
+    <p class="lead reveal">공장이나 기업이 <span class="hl">쓰고 남은 멀쩡한 부품·자재</span>를, 그게 <span class="hl">필요한 다른 공장</span>과 직접 연결해 거래하는 플랫폼입니다. 한마디로 <span class="hl">기업용 중고 거래 장터</span>입니다.</p>
+    <p class="step reveal">쓰는 방식은 이렇게 간단합니다.</p>
+    <div class="sides">
+      <div class="scard org reveal"><span class="ic">📦</span><span class="tag">파는 쪽</span><p>라인을 바꾸거나 너무 많이 주문해서 남은 부품·자재를, 사진과 규격만 올려 내놓습니다.</p></div>
+      <div class="scard blu blue reveal"><span class="ic">🔧</span><span class="tag">사는 쪽</span><p>단종돼서 못 구하던 부품이나 급히 필요한 자재, 소량만 필요한 자재를, 다른 공장이 쌓아둔 재고에서 찾아 삽니다.</p></div>
+    </div>
+    <p class="muted reveal">복잡한 입찰이나 견적 없이, 올라온 물건을 보고 바로 연락해 거래하는 형태입니다.</p>
+
+    <h3 class="subhead reveal"><span class="sq"></span>예를 들면 이런 것들</h3>
+    <div class="ex">
+      <div class="ecard reveal"><span class="bullet"></span><div><div class="et">남는 재고·자재</div><div class="eb">볼트·너트 같은 패스너, 베어링, 밸브, 센서 등 소모성(MRO) 자재</div></div></div>
+      <div class="ecard reveal"><span class="bullet"></span><div><div class="et">단종·구형 부품</div><div class="eb">PLC(공장 자동화 제어기), 인버터·드라이브, 산업용 모터처럼 이제 안 나오는 보수용 부품</div></div></div>
+      <div class="ecard reveal"><span class="bullet"></span><div><div class="et">여유 원자재</div><div class="eb">쓰고 남은 금속·강재 등</div></div></div>
+    </div>
+  </section>
+
+  <!-- 2. 이런 앱이 있다면 -->
+  <section class="sec org">
+    <div class="sechead reveal"><div class="num">2</div><h2>이런 앱이 있다면</h2></div>
+    <div class="qs">
+      <div class="q org reveal"><div class="qn">1</div><p>솔직히, 실제로 쓰실 것 같으세요? 어떤 상황에서 사용하실 것 같으세요?</p></div>
+      <div class="q org reveal"><div class="qn">2</div><p>판다면 어떤 걸 올려보고 싶으세요? 산다면 어떤 걸 찾아보시겠어요?</p></div>
+      <div class="q org reveal"><div class="qn">3</div><p>쓰겠다 / 안 쓰겠다 하신다면, 그 이유는 무엇일까요?</p></div>
+    </div>
+  </section>
+
+  <!-- 3. 지금은 어떻게 -->
+  <section class="sec blue">
+    <div class="sechead reveal"><div class="num" style="background:var(--blue);box-shadow:0 6px 16px rgba(37,109,214,.28)">3</div><h2>지금은 어떻게 하고 계세요</h2></div>
+    <div class="qs">
+      <div class="q blu reveal"><div class="qn">1</div><p>안 쓰는 부품·자재가 남으면 보통 어떻게 처리하세요? <span class="hint">(창고 보관 / 고철 처리 / 폐기 / 아는 곳에 넘김…)</span></p></div>
+      <div class="q blu reveal"><div class="qn">2</div><p>재고가 쌓여서 곤란했던 적이 있으세요?</p></div>
+      <div class="q blu reveal"><div class="qn">3</div><p>반대로 필요한 부품을 못 구해서 애먹은 적이 있으신가요? <span class="hint">(특히 단종 부품)</span> 그때 어떻게 해결하셨어요?</p></div>
+    </div>
+  </section>
+
+  <div class="note reveal" style="text-align:center;border-left:none;background:var(--orange-l);color:var(--orange-d);font-size:22px;font-weight:800;padding:30px 22px;">감사합니다</div>
+</main>
+
+<script>
+  // progress bar
+  var bar=document.getElementById('bar');
+  function onScroll(){
+    var h=document.documentElement;
+    var sc=(h.scrollTop)/(h.scrollHeight-h.clientHeight);
+    bar.style.width=(sc*100)+'%';
+  }
+  document.addEventListener('scroll',onScroll,{passive:true});onScroll();
+  // reveal
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target);}});
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach(function(el,i){
+    el.style.transitionDelay=(Math.min(i%5,4)*0.05)+'s';
+    io.observe(el);
+  });
+</script>
+</body>
+</html>
