@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover">
+<title>🎰 점심 슬롯</title>
+<style>
+:root{--bg1:#fff7ea;--bg2:#f1ecff;--bg3:#ffeef3;--card:#ffffff;--ink:#372f55;--sub:#8b85a6;--accent:#6c4ae0;--accent-soft:#efeaff;--gold:#d99000;--gold-bg:#fff3d6;--line:#e6e0f2}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif;color:var(--ink);background:linear-gradient(160deg,var(--bg1),var(--bg2),var(--bg3));background-size:300% 300%;animation:bgmove 14s ease infinite}
+@keyframes bgmove{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+#app{max-width:430px;margin:0 auto;min-height:100dvh;padding:18px 14px calc(74px + env(safe-area-inset-bottom))}
+header{text-align:center;margin-bottom:14px}
+header h1{font-size:24px;letter-spacing:1px}
+header .sub{font-size:12px;color:var(--sub);margin-top:4px}
+h2{font-size:16px;margin:18px 0 10px}
+section{animation:flipIn .25s ease}
+button{font-family:inherit;cursor:pointer}
+input,textarea{font-size:16px;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-family:inherit}
+input:focus,textarea:focus{outline:none;border-color:var(--accent)}
+/* ── 슬롯 머신 ── */
+#machine{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:16px 14px;box-shadow:0 6px 24px rgba(108,74,224,.08)}
+#machine.golden{border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-bg),0 6px 24px rgba(217,144,0,.25);animation:flash .35s ease 5}
+@keyframes flash{50%{box-shadow:0 0 0 8px var(--gold-bg)}}
+#lights{display:flex;justify-content:space-between;margin-bottom:12px}
+#lights i{width:8px;height:8px;border-radius:50%;background:#e8e2f5}
+#lights i.a{background:#ffb300}#lights i.b{background:var(--accent)}
+#reels{display:flex;gap:8px;justify-content:center}
+.reel{flex:1;height:74px;background:#f7f4ff;border:1.5px solid var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.reel .re{font-size:26px;line-height:1.2}
+.reel .rn{font-size:10px;color:var(--sub);max-width:90%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.reel.spin .re{filter:blur(1.2px);animation:jitter .12s linear infinite}
+@keyframes jitter{0%{transform:translateY(-2px)}50%{transform:translateY(2px)}100%{transform:translateY(-2px)}}
+.reel.land{animation:landB .3s ease}
+@keyframes landB{0%{transform:scale(1.15)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+#gaugeWrap{height:10px;background:var(--accent-soft);border-radius:6px;margin:14px 0 10px;overflow:hidden}
+#gauge{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),#8a63f0);border-radius:6px}
+#spinBtn{width:100%;padding:14px;font-size:17px;font-weight:700;color:#fff;border:none;border-radius:14px;background:linear-gradient(135deg,var(--accent),#8a63f0);box-shadow:0 4px 14px rgba(108,74,224,.35);touch-action:none;user-select:none;-webkit-user-select:none}
+#spinBtn:active{transform:scale(.98)}
+#hint{text-align:center;font-size:11px;color:var(--sub);margin-top:8px}
+#tokenBox{text-align:center;font-size:12px;color:var(--accent);margin-top:6px;font-weight:600}
+/* ── 후보 카드 ── */
+#cards{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.card{display:flex;align-items:center;gap:12px;background:hsl(var(--h),70%,97%);border:1.5px solid hsl(var(--h),45%,82%);border-radius:16px;padding:12px;animation:flipIn .4s ease backwards;cursor:pointer}
+.plate{width:54px;height:54px;border-radius:50%;background:hsl(var(--h),80%,92%);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:2.5px solid var(--gc);animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@keyframes flipIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1}}
+.cinfo{min-width:0}
+.cname{font-weight:700;font-size:15px}
+.grade{font-size:11px;font-weight:700;margin-top:2px}
+.memohint{font-size:11px;color:var(--sub);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#spinFooter{margin-top:10px}
+#rerollBtn{width:100%;padding:11px;border:1.5px dashed var(--accent);background:var(--accent-soft);color:var(--accent);border-radius:12px;font-size:13px;font-weight:600}
+#result{margin-top:14px}
+.banner{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:18px;text-align:center;animation:flipIn .35s ease}
+.banner.gold{border-color:var(--gold);background:var(--gold-bg)}
+.bigE{font-size:44px}
+.rt{font-size:17px;font-weight:800;margin-top:6px}
+.rs{font-size:12px;color:var(--sub);margin-top:4px}
+/* ── 진화 연출 ── */
+#evo{position:fixed;inset:0;background:rgba(255,251,240,.95);display:none;flex-direction:column;align-items:center;justify-content:center;z-index:60;overflow:hidden}
+#rays{position:absolute;width:140vmax;height:140vmax;background:conic-gradient(#ffe9b8 0 12deg,transparent 12deg 24deg);border-radius:50%;animation:rot 8s linear infinite;opacity:.6}
+@keyframes rot{to{transform:rotate(360deg)}}
+#evoEmoji{font-size:64px;z-index:1;animation:evoPop .6s cubic-bezier(.2,1.6,.4,1)}
+@keyframes evoPop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+#evoText{font-size:20px;font-weight:800;z-index:1;margin-top:10px}
+#evoSub{font-size:13px;color:var(--sub);z-index:1;margin-top:4px}
+/* ── 도감 ── */
+#dexGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dex{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.dex .de{font-size:30px}
+.dex .dn{font-size:13px;font-weight:700;margin-top:4px}
+.dex .dp{font-size:11px;color:var(--sub);margin-top:3px}
+#stats{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:6px 14px}
+.srow{display:flex;justify-content:space-between;font-size:13px;padding:8px 0;border-bottom:1px solid var(--line)}
+.srow:last-child{border-bottom:none}
+.srow b{color:var(--accent)}
+/* ── 관리 ── */
+#addBar{display:flex;gap:8px;margin-bottom:12px}
+#addBar input{flex:1;min-width:0}
+#addBtn,.memoAdd button{padding:10px 14px;border:none;border-radius:10px;background:var(--accent);color:#fff;font-size:13px;font-weight:600;flex-shrink:0}
+.mrow{background:var(--card);border:1.5px solid var(--line);border-left:5px solid hsl(var(--h),60%,72%);border-radius:14px;padding:12px;margin-bottom:10px}
+.mrow.off{opacity:.5}
+.mtop{display:flex;gap:8px;align-items:center}
+.emBtn{width:44px;height:44px;font-size:22px;border:1.5px solid var(--line);border-radius:10px;background:#faf8ff;flex-shrink:0}
+.nameIn{flex:1;min-width:0}
+.sm{padding:8px 10px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);font-size:12px;color:var(--sub);flex-shrink:0}
+.mgrade{font-size:11px;color:var(--sub);margin-top:8px}
+.memoBox{margin-top:10px;background:#faf8ff;border:1.5px dashed var(--line);border-radius:12px;padding:10px}
+.memoLabel{font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+.chip{font-size:12px;background:var(--accent-soft);color:var(--accent);border-radius:20px;padding:5px 10px;cursor:pointer}
+.noChip{font-size:11px;color:var(--sub)}
+.memoAdd{display:flex;gap:6px}
+.memoAdd input{flex:1;min-width:0;padding:8px 10px}
+#mHint{font-size:11px;color:var(--sub);text-align:center;margin:6px 0 16px}
+#ioWrap{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:12px}
+.iohd{font-size:13px;font-weight:700;margin-bottom:8px}
+.iobtns{display:flex;gap:8px;margin-bottom:8px}
+.iobtns button{flex:1;padding:10px;border:1.5px solid var(--accent);border-radius:10px;background:var(--accent-soft);color:var(--accent);font-size:12px;font-weight:600}
+#ioArea{width:100%;height:90px;resize:vertical}
+/* ── 이모지 시트 ── */
+#emojiSheet{position:fixed;inset:0;background:rgba(55,47,85,.35);z-index:70;display:none;align-items:flex-end}
+#sheetBody{width:100%;max-width:430px;margin:0 auto;background:var(--card);border-radius:20px 20px 0 0;padding:16px 14px calc(14px + env(safe-area-inset-bottom));animation:sheetUp .25s ease}
+@keyframes sheetUp{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+#sheetTitle{font-size:14px;font-weight:700;margin-bottom:10px;text-align:center}
+.sheetRow{display:flex;gap:8px;margin-bottom:10px}
+.sheetRow button{flex:1;padding:11px;border:1.5px solid var(--line);border-radius:12px;background:#faf8ff;font-size:14px;font-weight:600}
+#recBtn:disabled{opacity:.45}
+#emGrid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px;max-height:45vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:2px}
+#emGrid button{font-size:22px;padding:6px 0;border:none;background:none;border-radius:8px}
+#emGrid button:active{background:var(--accent-soft)}
+#sheetClose{width:100%;margin-top:10px;padding:12px;border:none;border-radius:12px;background:var(--ink);color:#fff;font-size:14px;font-weight:600}
+/* ── 하단 내비 ── */
+#nav{position:fixed;left:0;right:0;bottom:0;display:flex;max-width:430px;margin:0 auto;background:var(--card);border-top:1.5px solid var(--line);padding-bottom:env(safe-area-inset-bottom);z-index:50}
+#nav button{flex:1;padding:13px 0;border:none;background:none;font-size:13px;color:var(--sub);font-weight:600}
+#nav button.on{color:var(--accent)}
+/* 파티클 */
+.pt{position:fixed;top:40%;left:50%;font-size:20px;pointer-events:none;z-index:80;animation:fall 1.6s ease-out forwards}
+@keyframes fall{from{transform:translate(0,0) rotate(0);opacity:1}to{transform:translate(var(--dx),60vh) rotate(360deg);opacity:0}}
+</style>
+</head>
+<body>
+<div id="app">
+<header><h1>🎰 점심 슬롯</h1><div class="sub">단골 식당가 키우기</div></header>
+
+<section id="sec-spin">
+  <div id="machine">
+    <div id="lights"></div>
+    <div id="reels">
+      <div class="reel"><div class="re">🍽️</div><div class="rn">?</div></div>
+      <div class="reel"><div class="re">🍽️</div><div class="rn">?</div></div>
+      <div class="reel"><div class="re">🍽️</div><div class="rn">?</div></div>
+    </div>
+    <div id="gaugeWrap"><div id="gauge"></div></div>
+    <button id="spinBtn">🎰 꾹 눌러서 스핀!</button>
+    <div id="hint">버튼을 꾹 누르면 기운이 모입니다</div>
+    <div id="tokenBox"></div>
+  </div>
+  <div id="cards"></div>
+  <div id="spinFooter"></div>
+  <div id="result"></div>
+</section>
+
+<section id="sec-dex" style="display:none">
+  <h2>📚 식당 도감</h2>
+  <div id="dexGrid"></div>
+  <h2>📊 통계</h2>
+  <div id="stats"></div>
+</section>
+
+<section id="sec-manage" style="display:none">
+  <h2>⚙️ 식당 관리</h2>
+  <div id="addBar"><input id="newName" placeholder="새 식당 이름 (예: 회사 앞 쌀국수)"><button id="addBtn">추가</button></div>
+  <div id="mList"></div>
+  <div id="mHint">이모지를 누르면 바꿀 수 있어요 · 이름은 바로 수정 가능</div>
+  <div id="ioWrap">
+    <div class="iohd">💾 데이터 백업 / 복원</div>
+    <div class="iobtns"><button id="expBtn">백업 코드 만들기</button><button id="impBtn">코드로 복원하기</button></div>
+    <textarea id="ioArea" placeholder="백업 코드가 여기 표시됩니다. 복원할 땐 코드를 붙여넣고 [코드로 복원하기]를 누르세요."></textarea>
+  </div>
+</section>
+</div>
+
+<nav id="nav">
+  <button data-tab="spin" class="on">🎰 스핀</button>
+  <button data-tab="dex">📚 도감</button>
+  <button data-tab="manage">⚙️ 관리</button>
+</nav>
+
+<div id="evo"><div id="rays"></div><div id="evoEmoji"></div><div id="evoText"></div><div id="evoSub"></div></div>
+
+<div id="emojiSheet">
+  <div id="sheetBody">
+    <div id="sheetTitle"></div>
+    <div class="sheetRow"><button id="recBtn"></button><button id="diceBtn">🎲 랜덤 뽑기</button></div>
+    <div id="emGrid"></div>
+    <button id="sheetClose">닫기</button>
+  </div>
+</div>
+
+<script>
+const KEY="lunchSlot_v1";
+const FOODS=[
+// 음식 1
+"🍙","🍲","🍢","🥡","🥗","🍗","🍕","🍔","🍱","🍣","🍜","🍛","🥪","☕","🥩","🍖","🥣","🌮","🍝","🦐",
+// 음식 2
+"🍚","🍤","🍳","🥟","🌭","🥨","🧆","🥘","🍥","🍧","🍦","🍩","🍰","🥞","🧀","🍎","🍇","🍿","🫕","🍺",
+// 과일
+"🍈","🍉","🍊","🍋","🍌","🍍","🥭","🍏","🍐","🍑","🍒","🍓","🫐","🥝","🍅","🥥","🥑","🍆","🫒","🌰",
+// 채소·곡물·빵
+"🥔","🥕","🌽","🌶️","🫑","🥒","🥬","🥦","🧄","🧅","🍄","🥜","🫘","🌾","🍞","🥐","🥖","🫓","🥯","🧇",
+// 요리·식사
+"🥚","🍟","🌯","🫔","🥙","🍘","🍠","🥮","🍡","🥠","🦀","🦞","🦑","🦪","🧈","🧂","🥫","🍽️","🥢","🥄",
+// 디저트·음료
+"🍨","🍪","🎂","🧁","🥧","🍫","🍬","🍭","🍮","🍯","🥛","🫖","🍵","🍶","🍾","🍷","🍸","🍹","🍻","🥂",
+// 음료2·주방·물고기
+"🥃","🫗","🥤","🧋","🧃","🧉","🧊","🍼","🥓","🍴","🔪","🏺","🫙","🐥","🐦","🐔","🐟","🐠","🐡","🐳",
+// 동물 1
+"🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🐨","🐯","🦁","🐮","🐷","🐸","🐵","🐒","🐧","🐤","🐣","🦆",
+// 동물 2
+"🦅","🦉","🐺","🐗","🐴","🦄","🐝","🐛","🦋","🐌","🐞","🐜","🦗","🐢","🐍","🦎","🦖","🦕","🐙","🦈",
+// 동물 3
+"🐬","🐋","🦭","🦦","🦥","🦨","🦘","🦒","🦓","🦌","🐘","🦏","🦛","🐪","🐫","🦙","🐐","🐏","🐑","🐎",
+// 동물 4·꽃
+"🐄","🐖","🐀","🐿️","🦔","🦃","🦚","🦜","🦢","🦩","🕊️","🐇","🦝","🦡","🐾","🌸","🌹","🌺","🌻","🌷",
+// 자연·하늘
+"🌼","💐","🌱","🪴","🌲","🌳","🌴","🌵","☘️","🍀","🍁","🍂","🍃","🌍","🌕","🌙","⭐","🌟","✨","☀️",
+// 날씨·풍경
+"🌈","⛅","❄️","☃️","⛄","💧","💦","🌊","🔥","💥","⚡","☄️","🌪️","🌬️","💨","☔","🌫️","🎑","🏔️","🗻",
+// 스포츠
+"⚽","🏀","🏈","⚾","🥎","🎾","🏐","🏉","🎱","🏓","🏸","🥊","🥋","⛳","🛹","🛼","⛸️","🎿","🏂","🏄",
+// 게임·예술
+"🎮","🕹️","🎰","🎲","🧩","🃏","🀄","🎴","🎯","🎳","🪀","🪁","🎪","🎭","🎨","🎬","🎤","🎧","🎼","🎹",
+// 음악·파티
+"🥁","🎷","🎺","🎸","🎻","🪕","🎉","🎊","🎈","🎁","🎀","🪅","🪩","🎄","🎃","🎆","🎇","🧨","🪄","🔮",
+// 탈것
+"🚗","🚕","🚙","🚌","🏎️","🚓","🚑","🚒","🚚","🚜","🛵","🏍️","🚲","🛴","🚂","🚀","🛸","✈️","🚁","⛵",
+// 장소·보물
+"🏠","🏰","🏯","🗼","🗽","⛺","🎡","🎢","🎠","⛲","🛍️","👑","💎","💍","💰","🪙","🏆","🥇","🏅","🎖️",
+// 하트
+"❤️","🧡","💛","💚","💙","💜","🖤","🤍","🤎","💖","💗","💓","💞","💕","💘","💝","💯","💫","🫧","🎵",
+// 표정·제스처
+"😀","😄","😆","😂","🤣","😊","😇","🙂","😉","😋","😎","🤩","🥳","😺","😸","🙌","👍","✌️","🤞","🤙"
+];
+const GRADES=[
+{min:0,n:"N",c:"#8d86a8",p:""},
+{min:5,n:"R",c:"#2f80ed",p:"단골 "},
+{min:15,n:"SR",c:"#9b51e0",p:"명물 "},
+{min:30,n:"SSR",c:"#d99000",p:"전설의 "}
+];
+const EMAP=[
+[/김밥/,"🍙"],[/국밥|탕|찌개/,"🍲"],[/분식|떡볶이/,"🍢"],[/중국|짜장|중식/,"🥡"],[/샐러드/,"🥗"],
+[/치킨|닭/,"🍗"],[/피자/,"🍕"],[/버거/,"🍔"],[/돈까스|돈가스/,"🍱"],[/초밥|회|스시/,"🍣"],
+[/라멘|라면|면|국수|우동/,"🍜"],[/카레/,"🍛"],[/빵|샌드|베이커리/,"🥪"],[/카페|커피/,"☕"],
+[/고기|삼겹|구이/,"🥩"],[/족발|보쌈/,"🍖"],[/도시락|백반|한식|식당/,"🍱"],[/죽/,"🥣"],
+[/타코|멕시/,"🌮"],[/파스타|양식/,"🍝"],[/곱창|막창/,"🔥"],[/해물|조개|새우|수산/,"🦐"],[/비빔밥|밥/,"🍚"]
+];
+
+let S,spinning=false,usedReroll=false,cands=[],golden=false,sheetIdx=-1;
+let held=false,gTimer=null,gv=0,gd=4;
+
+const $=id=>document.getElementById(id);
+const machine=$("machine"),gauge=$("gauge"),spinBtn=$("spinBtn"),tokenBox=$("tokenBox"),
+ cards=$("cards"),spinFooter=$("spinFooter"),result=$("result"),dexGrid=$("dexGrid"),stats=$("stats"),
+ mList=$("mList"),ioArea=$("ioArea"),emojiSheet=$("emojiSheet"),sheetTitle=$("sheetTitle"),
+ recBtn=$("recBtn"),emGrid=$("emGrid"),evo=$("evo"),evoEmoji=$("evoEmoji"),evoText=$("evoText"),evoSub=$("evoSub");
+
+/* ── 데이터 ── */
+function guessEmoji(name){for(const [re,e] of EMAP){if(re.test(name))return e}return "🍽️"}
+function randomEmoji(){const used=new Set(S?S.restaurants.map(r=>r.emoji):[]);const pool=FOODS.filter(e=>!used.has(e));const src=pool.length?pool:FOODS;return src[Math.floor(Math.random()*src.length)]}
+function mkRest(name){let e=guessEmoji(name);return {name,emoji:e==="🍽️"?randomEmoji():e,memos:[],xp:0,picks:0,last:null,retired:false}}
+function fix(d){
+ d=d&&typeof d==="object"?d:{};
+ d.restaurants=Array.isArray(d.restaurants)?d.restaurants:[];
+ d.restaurants.forEach(r=>{
+  r.name=String(r.name||"이름 없는 식당");
+  if(!r.emoji||r.emoji==="🍽️"){const e=guessEmoji(r.name);r.emoji=e==="🍽️"?FOODS[Math.floor(Math.random()*FOODS.length)]:e}
+  if(!Array.isArray(r.memos))r.memos=[];
+  r.xp=r.xp||0;r.picks=r.picks||0;r.last=r.last||null;r.retired=!!r.retired;
+ });
+ d.history=Array.isArray(d.history)?d.history:[];
+ d.tokens=(d.tokens&&typeof d.tokens.count==="number")?d.tokens:{count:3,last:Date.now()};
+ return d;
+}
+function load(){
+ try{const raw=localStorage.getItem(KEY);if(raw){S=fix(JSON.parse(raw));return}}catch(e){}
+ S=fix({restaurants:["김밥천국","동네 국밥집","회사 앞 분식","중국집","샐러드 가게"].map(mkRest2)});
+ save();
+}
+function mkRest2(n){S={restaurants:[]};return mkRest(n)}
+function load2(d){return fix(d)} /* 복원 데이터 보정 */
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){alert("저장에 실패했어요. 브라우저 저장공간을 확인해 주세요.")}}
+
+/* ── 헬퍼 ── */
+function daysSince(t){return t?(Date.now()-t)/864e5:9999}
+function gradeOf(r){let g=GRADES[0];for(const x of GRADES){if(r.xp>=x.min)g=x}return g}
+function dispName(r){return gradeOf(r).p+r.name}
+function hueOf(name){let h=0;for(const ch of name){h=(h*31+ch.codePointAt(0))%360}return h}
+function active(){return S.restaurants.filter(r=>!r.retired)}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function vib(p){if(navigator.vibrate)navigator.vibrate(p)}
+function refillTokens(){const d=Math.floor(daysSince(S.tokens.last)/2);if(d>0){S.tokens.count=Math.min(3,S.tokens.count+d);S.tokens.last=Date.now();save()}}
+function renderTokens(){tokenBox.textContent=`🎟 리롤 토큰 ${S.tokens.count}/3`}
+function burst(n,ems){for(let k=0;k<n;k++){const p=document.createElement("div");p.className="pt";p.textContent=ems[k%ems.length];p.style.setProperty("--dx",(Math.random()*240-120)+"px");p.style.left=(35+Math.random()*30)+"%";document.body.appendChild(p);setTimeout(()=>p.remove(),1600)}}
+
+/* ── 추첨 ── */
+function pick3(){
+ const pool=active().slice();const out=[];
+ while(out.length<3&&pool.length){
+  let tot=0;const ws=pool.map(r=>{const w=1+(daysSince(r.last)>=30?1.5:0);tot+=w;return w});
+  let x=Math.random()*tot,i=0;
+  for(;i<pool.length;i++){x-=ws[i];if(x<=0)break}
+  if(i>=pool.length)i=pool.length-1;
+  out.push(pool.splice(i,1)[0]);
+ }
+ return out;
+}
+
+/* ── 스핀 ── */
+function setReel(el,r){el.querySelector(".re").textContent=r.emoji;el.querySelector(".rn").textContent=r.name}
+function doSpin(){
+ if(spinning)return;
+ if(active().length<3){alert("식당이 3곳 이상 있어야 스핀할 수 있어요!\n⚙️ 관리 탭에서 식당을 추가해 주세요.");return}
+ spinning=true;usedReroll=false;
+ result.innerHTML="";cards.innerHTML="";spinFooter.innerHTML="";
+ golden=Math.random()<0.05;
+ machine.classList.toggle("golden",golden);
+ cands=pick3();
+ cands.forEach(r=>r.xp+=golden?2:1);
+ const reels=[...document.querySelectorAll(".reel")],acts=active();
+ reels.forEach((el,i)=>{
+  el.classList.add("spin");el.classList.remove("land");
+  const t=setInterval(()=>setReel(el,acts[Math.floor(Math.random()*acts.length)]),65);
+  setTimeout(()=>{clearInterval(t);el.classList.remove("spin");el.classList.add("land");setReel(el,cands[i]);vib(30)},900+i*500);
+ });
+ setTimeout(reveal,900+1000+400);
+}
+function reveal(){
+ cards.innerHTML=cands.map((r,i)=>{
+  const g=gradeOf(r);
+  return `<div class="card" data-i="${i}" style="--h:${hueOf(r.name)};--gc:${g.c};animation-delay:${i*0.12}s">`
+   +`<div class="plate">${r.emoji}</div><div class="cinfo">`
+   +`<div class="cname">${esc(dispName(r))}${r.picks>=10?" 🏅":""}</div>`
+   +`<div class="grade" style="color:${g.c}">${g.n} · ${r.picks}회 선택</div>`
+   +(r.memos.length?`<div class="memohint">📝 ${esc(r.memos.slice(0,2).join(" · "))}</div>`:"")
+   +`</div></div>`}).join("");
+ spinFooter.innerHTML=(S.tokens.count>0&&!usedReroll)?`<button id="rerollBtn">🎟 셋 다 별로야! 다시 뽑기 (토큰 1개)</button>`:"";
+ if(golden)burst(18,["✨","🌟","💛"]);
+ save();renderTokens();
+}
+function doReroll(){
+ if(S.tokens.count<1||usedReroll||!spinning)return;
+ S.tokens.count--;usedReroll=true;
+ cands=pick3();cands.forEach(r=>r.xp+=golden?2:1);
+ [...document.querySelectorAll(".reel")].forEach((el,i)=>setReel(el,cands[i]));
+ reveal();
+}
+function confirmPick(i){
+ const r=cands[i];if(!r||!spinning)return;
+ const g0=gradeOf(r).n;
+ r.picks++;r.xp+=golden?6:3;r.last=Date.now();
+ const g1=gradeOf(r);
+ S.history.push({date:new Date().toISOString().slice(0,10),cands:cands.map(c=>c.name),pick:r.name,reroll:usedReroll,golden});
+ save();
+ cards.innerHTML="";spinFooter.innerHTML="";
+ result.innerHTML=`<div class="banner ${golden?"gold":""}"><div class="bigE">${r.emoji}</div>`
+  +`<div class="rt">오늘 점심은 ${esc(r.name)}!</div>`
+  +`<div class="rs">${golden?"🌟 황금 스핀 보너스! ":""}${g1.n} 등급 · 누적 ${r.picks}회 선택</div></div>`;
+ burst(golden?18:10,golden?["✨","🌟","💛"]:["🎉","✨"]);
+ if(g1.n!==g0)setTimeout(()=>showEvo(r,g1),700);
+ spinning=false;machine.classList.remove("golden");
+ renderDex();renderManage();renderTokens();
+}
+function showEvo(r,g){
+ evoEmoji.textContent=r.emoji;
+ evoText.textContent=`「${dispName(r)}」 탄생!`;
+ evoSub.textContent=`${g.n} 등급으로 성장했어요`;
+ evo.style.display="flex";vib([40,60,40]);
+ setTimeout(()=>{evo.style.display="none"},2600);
+}
+
+/* ── 게이지(꾹 누르기) ── */
+function startHold(ev){ev.preventDefault();if(spinning)return;held=true;gv=0;gd=4;gTimer=setInterval(()=>{gv+=gd;if(gv>=100){gv=100;gd=-4}if(gv<=0){gv=0;gd=4}gauge.style.width=gv+"%"},30)}
+function endHold(){if(!held)return;held=false;clearInterval(gTimer);gauge.style.width="0%";doSpin()}
+spinBtn.addEventListener("pointerdown",startHold);
+spinBtn.addEventListener("pointerup",endHold);
+spinBtn.addEventListener("pointercancel",()=>{held=false;clearInterval(gTimer);gauge.style.width="0%"});
+spinBtn.addEventListener("contextmenu",e=>e.preventDefault());
+
+/* ── 도감/통계 ── */
+function renderDex(){
+ const list=S.restaurants.slice().sort((a,b)=>b.xp-a.xp);
+ dexGrid.innerHTML=list.map(r=>{const g=gradeOf(r);
+  return `<div class="dex" style="border-color:${g.c}55"><div class="de">${r.emoji}</div>`
+   +`<div class="dn">${esc(dispName(r))}${r.picks>=10?" 🏅":""}</div>`
+   +`<div class="dp" style="color:${g.c};font-weight:700">${g.n} 등급</div>`
+   +`<div class="dp">${r.picks}회 선택 · XP ${r.xp}${r.retired?" · 은퇴":""}</div></div>`}).join("")
+  ||'<div class="dp">아직 식당이 없어요. ⚙️ 관리 탭에서 추가해 주세요.</div>';
+ const tot=S.history.length,goldN=S.history.filter(h=>h.golden).length;
+ const ym=new Date().toISOString().slice(0,7);
+ const m={};S.history.filter(h=>h.date&&h.date.startsWith(ym)).forEach(h=>{m[h.pick]=(m[h.pick]||0)+1});
+ let top="—",tc=0;for(const k in m){if(m[k]>tc){tc=m[k];top=k}}
+ const all={};S.history.forEach(h=>{all[h.pick]=(all[h.pick]||0)+1});
+ let mx=0;for(const k in all)mx=Math.max(mx,all[k]);
+ const bias=tot?Math.round(mx/tot*100):0;
+ stats.innerHTML=`<div class="srow"><span>총 스핀</span><b>${tot}회</b></div>`
+  +`<div class="srow"><span>🌟 황금 스핀</span><b>${goldN}회</b></div>`
+  +`<div class="srow"><span>이번 달 최다</span><b>${esc(top)}${tc?` (${tc}회)`:""}</b></div>`
+  +`<div class="srow"><span>편식 지수</span><b>${bias}%</b></div>`;
+}
+
+/* ── 관리 ── */
+function renderManage(){
+ mList.innerHTML=S.restaurants.map((r,i)=>{
+  const g=gradeOf(r);
+  return `<div class="mrow ${r.retired?"off":""}" style="--h:${hueOf(r.name)}">`
+   +`<div class="mtop"><button class="emBtn" data-em="${i}">${r.emoji}</button>`
+   +`<input class="nameIn" data-rn="${i}" value="${esc(r.name)}">`
+   +`<button class="sm" data-rt="${i}">${r.retired?"복귀":"은퇴"}</button></div>`
+   +`<div class="mgrade">${g.n} 등급 · ${r.picks}회 선택 · XP ${r.xp}</div>`
+   +`<div class="memoBox"><div class="memoLabel">📝 메뉴 메모 (탭하면 삭제)</div>`
+   +`<div class="chips">${r.memos.length?r.memos.map((m,j)=>`<span class="chip" data-dm="${i},${j}">${esc(m)} ×</span>`).join(""):'<span class="noChip">아직 메모가 없어요</span>'}</div>`
+   +`<div class="memoAdd"><input id="mi${i}" placeholder="예: 제육볶음이 진리"><button data-am="${i}">추가</button></div>`
+   +`</div></div>`}).join("");
+}
+function addRest(){
+ const inp=$("newName"),name=inp.value.trim();
+ if(!name)return;
+ if(S.restaurants.some(r=>r.name===name)){alert("이미 같은 이름의 식당이 있어요!");return}
+ S.restaurants.push(mkRest(name));inp.value="";
+ save();renderManage();renderDex();
+}
+function addMemo(i){
+ const inp=$("mi"+i);if(!inp)return;
+ const v=inp.value.trim();if(!v)return;
+ S.restaurants[i].memos.push(v);save();renderManage();
+ const again=$("mi"+i);if(again)again.focus();
+}
+function renameRest(i,v){
+ const r=S.restaurants[i];if(!r)return;
+ if(!v){renderManage();return}
+ if(S.restaurants.some((x,j)=>j!==i&&x.name===v)){alert("이미 같은 이름의 식당이 있어요!");renderManage();return}
+ const wasAuto=r.emoji===guessEmoji(r.name);
+ r.name=v;
+ if(wasAuto){const e=guessEmoji(v);if(e!=="🍽️")r.emoji=e}
+ save();renderManage();renderDex();
+}
+function doImport(){
+ try{const d=JSON.parse(ioArea.value);if(!d||typeof d!=="object")throw 0;S=load2(d);save();renderAll();alert("복원 완료!")}
+ catch(e){alert("백업 코드 형식이 올바르지 않아요")}
+}
+
+/* ── 이모지 시트 ── */
+function openSheet(i){
+ sheetIdx=i;const r=S.restaurants[i];
+ sheetTitle.textContent=`"${r.name}" 이모지 고르기`;
+ const rec=guessEmoji(r.name);
+ if(rec==="🍽️"){recBtn.textContent="🤷 추천 없음";recBtn.disabled=true;recBtn.dataset.e=""}
+ else{recBtn.textContent=rec+" 추천";recBtn.disabled=false;recBtn.dataset.e=rec}
+ if(!emGrid.childElementCount)emGrid.innerHTML=FOODS.map(e=>`<button data-e="${e}">${e}</button>`).join("");
+ emojiSheet.style.display="flex";
+}
+function applyEmoji(e,keepOpen){
+ if(sheetIdx<0||!e)return;
+ S.restaurants[sheetIdx].emoji=e;save();renderManage();renderDex();
+ if(keepOpen){sheetTitle.textContent=`→ ${e} (또 굴려도 돼요 🎲)`}else closeSheet();
+}
+function closeSheet(){emojiSheet.style.display="none";sheetIdx=-1}
+
+/* ── 탭 ── */
+function showTab(name){
+ ["spin","dex","manage"].forEach(t=>{$("sec-"+t).style.display=t===name?"":"none"});
+ document.querySelectorAll("#nav button").forEach(b=>b.classList.toggle("on",b.dataset.tab===name));
+}
+
+/* ── 이벤트 위임 ── */
+document.addEventListener("click",e=>{
+ if(e.target===emojiSheet){closeSheet();return}
+ const el=e.target.closest("button,.chip,.card");
+ if(!el)return;
+ if(el.dataset.tab){showTab(el.dataset.tab);return}
+ if(el.classList.contains("card")){confirmPick(+el.dataset.i);return}
+ if(el.dataset.em!==undefined){openSheet(+el.dataset.em);return}
+ if(el.dataset.rt!==undefined){const r=S.restaurants[+el.dataset.rt];r.retired=!r.retired;save();renderManage();renderDex();return}
+ if(el.dataset.am!==undefined){addMemo(+el.dataset.am);return}
+ if(el.dataset.dm!==undefined){const[i,j]=el.dataset.dm.split(",").map(Number);S.restaurants[i].memos.splice(j,1);save();renderManage();return}
+ if(el.id==="addBtn"){addRest();return}
+ if(el.id==="expBtn"){ioArea.value=JSON.stringify(S);ioArea.focus();if(ioArea.select)ioArea.select();return}
+ if(el.id==="impBtn"){doImport();return}
+ if(el.id==="sheetClose"){closeSheet();return}
+ if(el.id==="recBtn"){applyEmoji(el.dataset.e,false);return}
+ if(el.id==="diceBtn"){applyEmoji(randomEmoji(),true);return}
+ if(el.id==="rerollBtn"){doReroll();return}
+ if(el.dataset.e&&el.closest("#emGrid")){applyEmoji(el.dataset.e,false);return}
+});
+document.addEventListener("change",e=>{
+ if(e.target.dataset&&e.target.dataset.rn!==undefined)renameRest(+e.target.dataset.rn,e.target.value.trim());
+});
+document.addEventListener("keydown",e=>{
+ if(e.key!=="Enter")return;
+ if(e.target.id==="newName")addRest();
+ else if(/^mi\d+$/.test(e.target.id||""))addMemo(+e.target.id.slice(2));
+});
+
+/* ── 전광판 불빛 ── */
+const lights=$("lights");
+for(let i=0;i<14;i++)lights.appendChild(document.createElement("i"));
+let lp=0;
+setInterval(()=>{lp++;[...lights.children].forEach((d,i)=>{d.className=(i+lp)%3===0?"a":(i+lp)%3===1?"b":""})},300);
+
+/* ── 시작 ── */
+function renderAll(){renderTokens();renderDex();renderManage()}
+load();refillTokens();renderAll();
+</script>
+</body>
+</html>
