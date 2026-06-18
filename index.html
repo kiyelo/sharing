@@ -1,7 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>내 깃허브 파일 탐색기</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; line-height: 1.6; }
+        h1 { color: #333; }
+        ul { list-style-type: disc; padding-left: 20px; }
+        a { color: #0969da; text-decoration: none; font-weight: bold; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
 <body>
-    <div id="menu"></div>
 
-    <h1>각 페이지의 본문 내용...</h1>
+    <h1>📁 업로드된 HTML 파일 목록</h1>
+    <p>깃허브 저장소를 실시간으로 탐색하여 HTML 파일 링크를 자동으로 생성합니다.</p>
+    <hr>
+    
+    <ul id="file-list">제작 중...</ul>
 
-    <script src="navigation.js"></script>
+    <script>
+        // ⚠️ 이 두 부분만 본인 정보로 수정하세요!
+        const GITHUB_ID = "kiyelo"; 
+        const REPO_NAME = "sharing";
+
+        // 깃허브 저장소 내부의 파일 목록을 가져오는 API 주소
+        const apiUrl = `https://api.github.io/repos/${GITHUB_ID}/${REPO_NAME}/contents/`;
+
+        async function fetchHtmlFiles() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('네트워크 응답에 문제가 있습니다.');
+                
+                const files = await response.json();
+                const fileListElement = document.getElementById('file-list');
+                fileListElement.innerHTML = ''; // 초기화
+
+                // 파일 중에서 .html로 끝나는 파일만 거르기 (index.html은 제외)
+                const htmlFiles = files.filter(file => 
+                    file.name.endsWith('.html') && file.name !== 'index.html'
+                );
+
+                if (htmlFiles.length === 0) {
+                    fileListElement.innerHTML = '<li>아직 추가된 다른 HTML 파일이 없습니다.</li>';
+                    return;
+                }
+
+                // 거른 HTML 파일들을 화면에 링크(<li><a href="...">) 형태로 추가
+                htmlFiles.forEach(file => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    
+                    // 실제 웹사이트 주소 경로로 매핑
+                    a.href = file.name; 
+                    a.textContent = file.name; // 파일 이름을 링크 텍스트로 사용
+                    
+                    li.appendChild(a);
+                    fileListElement.appendChild(li);
+                });
+
+            } catch (error) {
+                console.error('오류 발생:', error);
+                document.getElementById('file-list').innerHTML = '<li>파일 목록을 불러오는 중 오류가 발생했습니다.</li>';
+            }
+        }
+
+        // 페이지가 켜지면 실행
+        fetchHtmlFiles();
+    </script>
 </body>
+</html>
