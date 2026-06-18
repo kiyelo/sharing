@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>260618 보고</title>
+<style>
+/*
+ * _base.css — Global design tokens, element defaults, page shell, and tiny utilities.
+ * ALWAYS included in every page.
+ *
+ * Provides:
+ *   :root variables (light + dark), box-sizing, html/body,
+ *   element defaults (button, input, select, textarea, label, fieldset, legend,
+ *   a, hr, img, h1-h4, p, ul/ol/li, blockquote, table/th/td, details/summary,
+ *   pre/code), main / .notion-shell, utility classes, .notion-footer,
+ *   reduced-motion and responsive breakpoints for base elements.
+ */
+
+:root {
+	color-scheme: light dark;
+	--notion-bg: #ffffff;
+	--notion-bg-soft: #f9f9f8;
+	--notion-surface: #ffffff;
+	--notion-surface-hover: #f6f5f4;
+	--notion-text: #191918;
+	--notion-text-soft: rgba(0, 0, 0, 0.54);
+	--notion-text-faint: rgba(0, 0, 0, 0.3);
+	--notion-border: rgba(0, 0, 0, 0.1);
+	--notion-border-soft: rgba(0, 0, 0, 0.05);
+	--notion-shadow:
+		0px 0.7px 1.462px rgba(0, 0, 0, 0.015), 0px 3px 9px rgba(0, 0, 0, 0.03);
+	--notion-blue: #2783de;
+	--notion-orange: #d5803b;
+	--notion-red: #e56458;
+	--notion-blue-bg: #f3f9fd;
+	--notion-yellow-bg: #fcfaef;
+	--notion-orange-bg: #fcf7f4;
+	--notion-green-bg: #f6f9f7;
+	--notion-red-bg: #fdf6f6;
+	--notion-gray-bg: #f9f8f7;
+	--notion-radius: 8px;
+	--notion-page-width: 900px;
+	--notion-chart-1: #5e9fe8;
+	--notion-chart-2: #eac26b;
+	--notion-chart-3: #72bc8f;
+	--notion-chart-4: #bf8eda;
+	--notion-chart-5: #de9255;
+	--notion-chart-6: #df84a8;
+	--notion-chart-7: #4fb9c9;
+	--notion-chart-8: #e97366;
+	--diff-add: #47c1b6;
+	--diff-del: #f07070;
+	--pr-approved: #2b8a3e;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--notion-bg: #000000;
+		--notion-bg-soft: #191918;
+		--notion-surface: #191918;
+		--notion-surface-hover: #31302e;
+		--notion-text: #ffffff;
+		--notion-text-soft: rgba(255, 255, 255, 0.5);
+		--notion-text-faint: rgba(255, 255, 255, 0.3);
+		--notion-border: rgba(255, 255, 255, 0.2);
+		--notion-border-soft: rgba(255, 255, 255, 0.1);
+		--notion-shadow:
+			0px 0.7px 1.462px rgba(0, 0, 0, 0.06), 0px 3px 9px rgba(0, 0, 0, 0.12);
+		--notion-blue: #5e9fe8;
+		--notion-orange: #de9255;
+		--notion-red: #e97366;
+		--notion-blue-bg: rgba(41, 139, 253, 0.061);
+		--notion-yellow-bg: rgba(203, 145, 47, 0.08);
+		--notion-orange-bg: rgba(246, 126, 35, 0.08);
+		--notion-green-bg: rgba(42, 157, 118, 0.08);
+		--notion-red-bg: rgba(246, 73, 50, 0.08);
+		--notion-gray-bg: #31302e;
+		--diff-add: #5dd8cb;
+		--diff-del: #ff8a80;
+		--pr-approved: #69db7c;
+	}
+}
+
+* {
+	box-sizing: border-box;
+}
+html {
+	scroll-behavior: smooth;
+}
+body {
+	margin: 0;
+	background: var(--notion-bg);
+	color: var(--notion-text);
+	font-family:
+		ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica,
+		"Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
+	font-size: 16px;
+	line-height: 1.5;
+	transition:
+		background 180ms ease,
+		color 180ms ease;
+}
+
+/* -- Base element defaults -------------------------------- */
+button,
+[type="button"],
+[type="submit"],
+[type="reset"] {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	padding: 8px 16px;
+	font: inherit;
+	font-size: 14px;
+	font-weight: 500;
+	line-height: 1.2;
+	color: #ffffff;
+	background: var(--notion-blue);
+	border: 1px solid transparent;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: background 150ms;
+	white-space: nowrap;
+}
+button:hover,
+[type="button"]:hover,
+[type="submit"]:hover,
+[type="reset"]:hover {
+	background: color-mix(in srgb, var(--notion-blue) 82%, black);
+}
+button:focus-visible,
+[type="button"]:focus-visible,
+[type="submit"]:focus-visible,
+[type="reset"]:focus-visible {
+	outline: 2px solid var(--notion-blue);
+	outline-offset: 2px;
+}
+
+input,
+select,
+textarea {
+	font: inherit;
+	font-size: 14px;
+	line-height: 1.4;
+	color: var(--notion-text);
+	background: var(--notion-surface);
+	border: 1px solid var(--notion-border);
+	border-radius: 8px;
+	padding: 8px 12px;
+	transition: border-color 150ms;
+}
+input:focus,
+select:focus,
+textarea:focus {
+	outline: none;
+	border-color: var(--notion-blue);
+	box-shadow: 0 0 0 2px rgba(9, 127, 232, 0.15);
+}
+input::placeholder,
+textarea::placeholder {
+	color: var(--notion-text-faint);
+}
+select {
+	appearance: none;
+	background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 4.5L6 7.5L9 4.5' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+	background-repeat: no-repeat;
+	background-position: right 10px center;
+	padding-right: 30px;
+}
+textarea {
+	resize: vertical;
+	min-height: 80px;
+}
+input[type="range"] {
+	border: none;
+	padding: 0;
+	background: transparent;
+	accent-color: var(--notion-blue);
+	height: 18px;
+	cursor: pointer;
+	box-shadow: none;
+}
+input[type="range"]:focus {
+	box-shadow: none;
+}
+input[type="checkbox"],
+input[type="radio"] {
+	width: 16px;
+	height: 16px;
+	accent-color: var(--notion-blue);
+	border: 1px solid var(--notion-border);
+	padding: 0;
+	cursor: pointer;
+}
+label {
+	display: block;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--notion-text);
+	margin-bottom: 6px;
+}
+fieldset {
+	border: 1px solid var(--notion-border-soft);
+	border-radius: 10px;
+	padding: 16px;
+	margin: 0;
+}
+legend {
+	font-weight: 600;
+	padding: 0 4px;
+}
+
+a {
+	color: var(--notion-text);
+	text-decoration: underline;
+	text-underline-offset: 2px;
+	text-decoration-color: var(--notion-border);
+}
+a:hover {
+	text-decoration-color: var(--notion-text);
+}
+
+hr {
+	height: 1px;
+	margin: 34px 0;
+	border: none;
+	background: var(--notion-border-soft);
+}
+
+img {
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	text-wrap: balance;
+}
+h1 {
+	margin: 0 0 14px;
+	font-size: clamp(42px, 7vw, 72px);
+	line-height: 1.1;
+	letter-spacing: -0.035em;
+	font-weight: 700;
+}
+h2 {
+	margin: 44px 0 10px;
+	font-size: 32px;
+	line-height: 1.25;
+	letter-spacing: -0.025em;
+}
+h3 {
+	margin: 0 0 6px;
+	font-size: 18px;
+	line-height: 1.556;
+	letter-spacing: -0.007em;
+}
+p {
+	margin: 0 0 10px;
+}
+
+ul,
+ol {
+	margin: 8px 0 16px;
+	padding-left: 24px;
+}
+li {
+	margin-bottom: 4px;
+}
+li::marker {
+	color: var(--notion-text-faint);
+}
+
+blockquote {
+	border-left: 3px solid var(--notion-text);
+	padding: 4px 0 4px 16px;
+	margin: 24px 0;
+}
+blockquote p {
+	font-size: 18px;
+	line-height: 1.5;
+	margin: 0;
+}
+
+table {
+	width: 100%;
+	margin: 14px 0;
+	border-collapse: separate;
+	border-spacing: 0;
+	border: 1px solid var(--notion-border-soft);
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--notion-surface);
+	font-size: 14px;
+}
+th,
+td {
+	padding: 12px 14px;
+	vertical-align: top;
+	text-align: left;
+	border-right: 1px solid var(--notion-border-soft);
+	border-bottom: 1px solid var(--notion-border-soft);
+}
+th:last-child,
+td:last-child {
+	border-right: 0;
+}
+tr:last-child td {
+	border-bottom: 0;
+}
+th {
+	background: var(--notion-bg-soft);
+	color: var(--notion-text-soft);
+	font-weight: 600;
+}
+
+details {
+	margin: 16px 0;
+	border-radius: var(--notion-radius);
+}
+summary {
+	padding: 8px 10px;
+	border-radius: var(--notion-radius);
+	cursor: pointer;
+	font-weight: 600;
+}
+summary:hover {
+	background: var(--notion-surface-hover);
+}
+details p {
+	margin: 8px 10px 0 28px;
+	color: var(--notion-text-soft);
+}
+
+pre,
+code {
+	font-family: ui-monospace, "iA Writer Mono", Nitti, Menlo, Courier, monospace;
+}
+pre {
+	margin: 16px 0;
+	padding: 14px 16px;
+	overflow-x: auto;
+	border: 1px solid var(--notion-border-soft);
+	border-radius: 10px;
+	background: var(--notion-gray-bg);
+	font-size: 13px;
+	line-height: 1.55;
+}
+code {
+	font-size: 0.9em;
+	padding: 2px 5px;
+	border-radius: 4px;
+	background: var(--notion-gray-bg);
+}
+pre code {
+	font-size: inherit;
+	padding: 0;
+	border-radius: 0;
+	background: none;
+}
+
+main {
+	max-width: var(--notion-page-width);
+	margin: 0 auto;
+	padding: 76px 24px 88px;
+}
+
+section {
+	margin-top: 44px;
+}
+section:first-child {
+	margin-top: 0;
+}
+
+/* -- Page shell ------------------------------------------- */
+.notion-shell {
+	max-width: var(--notion-page-width);
+	margin: 0 auto;
+	padding: 76px 24px 88px;
+}
+
+/* -- Tiny utilities --------------------------------------- */
+.notion-lede {
+	max-width: 720px;
+	margin: 0 0 24px;
+	color: var(--notion-text-soft);
+	font-size: 20px;
+}
+.notion-muted {
+	color: var(--notion-text-soft);
+}
+.notion-faint {
+	color: var(--notion-text-faint);
+}
+.notion-divider {
+	height: 1px;
+	margin: 34px 0;
+	background: var(--notion-border-soft);
+}
+.notion-eyebrow {
+	display: inline-block;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 0.0078125rem;
+	text-transform: uppercase;
+	color: var(--notion-blue);
+}
+
+/* -- Footer ----------------------------------------------- */
+.notion-footer {
+	margin-top: 52px;
+	padding-top: 18px;
+	border-top: 1px solid var(--notion-border-soft);
+	color: var(--notion-text-faint);
+	font-size: 13px;
+}
+
+/* -- Accessibility & motion ------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+	}
+}
+
+/* -- Responsive: 560px (base elements) -------------------- */
+@media (max-width: 560px) {
+	main,
+	.notion-shell {
+		padding-inline: 16px;
+	}
+	table {
+		display: block;
+		overflow-x: auto;
+	}
+}
+/*
+ * hero — Full-width hero section with title, subtitle, and optional eyebrow.
+ *
+ * HTML:
+ * <section class="notion-hero">
+ *   <span class="notion-eyebrow">Category</span>
+ *   <h1>Page Title</h1>
+ *   <p>A brief description that supports the title with additional context.</p>
+ *   <div class="notion-button-group">
+ *     <a class="notion-button" data-variant="primary" href="#">Get started</a>
+ *     <a class="notion-button" data-variant="secondary" href="#">Learn more</a>
+ *   </div>
+ * </section>
+ */
+
+.notion-hero {
+	padding: 48px 0 40px;
+	max-width: var(--notion-page-width);
+}
+.notion-hero h1 {
+	font-size: clamp(42px, 7vw, 72px);
+	font-weight: 700;
+	letter-spacing: -0.04em;
+	line-height: 1.05;
+	margin: 0;
+	text-wrap: balance;
+}
+.notion-hero p {
+	font-size: 20px;
+	line-height: 1.5;
+	color: var(--notion-text-soft);
+	margin: 16px 0 0;
+	max-width: 640px;
+}
+.notion-hero .notion-eyebrow {
+	margin-bottom: 12px;
+}
+
+/* -- Responsive: 820px ------------------------------------ */
+@media (max-width: 820px) {
+	.notion-hero {
+		padding: 32px 0 24px;
+	}
+	.notion-hero h1 {
+		font-size: clamp(32px, 8vw, 48px);
+	}
+}
+/* Report theme override — clean, airy, '이런 서비스 어떠세요' style */
+:root{
+  --notion-page-width: 760px;
+  --rg-line: rgba(0,0,0,0.08);
+}
+html,body{ -webkit-font-smoothing:antialiased; }
+body{ background:var(--notion-bg-soft); }
+/* Korean: no mid-word breaks */
+h1,h2,h3,h4,p,li,span,strong,div{ word-break:keep-all; overflow-wrap:break-word; }
+h1,h2,h3,h4{ text-wrap:pretty; }
+
+main.notion-shell{ padding:64px 28px 96px; }
+
+/* Hero */
+.notion-hero{ padding:8px 0 8px; border-bottom:1px solid var(--rg-line); margin-bottom:8px; }
+.notion-hero h1{ font-size:clamp(34px,5.2vw,52px); letter-spacing:-0.03em; }
+.notion-hero p{ font-size:18px; margin-top:14px; }
+.notion-eyebrow{ letter-spacing:0.06em; }
+
+/* Big numbered section marker */
+.rg-num{
+  font-size:54px; font-weight:800; line-height:1;
+  color:var(--notion-text-faint);
+  letter-spacing:-0.04em; margin:0 0 6px;
+}
+section > h2{ margin-top:6px; font-size:27px; letter-spacing:-0.02em; }
+.rg-sub{ color:var(--notion-text-soft); font-size:16px; max-width:620px; margin:8px 0 4px; }
+section{ margin-top:64px; }
+
+/* Method chips */
+.rg-chips{ display:flex; flex-wrap:wrap; gap:10px; margin:18px 0 4px; }
+.rg-chip{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 16px; border:1px solid var(--notion-border-soft);
+  border-radius:12px; background:var(--notion-surface);
+  box-shadow:var(--notion-shadow); font-size:15px; font-weight:600;
+}
+.rg-chip .rg-chip-ico{ font-size:18px; }
+.rg-chip small{ display:block; font-weight:400; color:var(--notion-text-soft); font-size:13px; }
+
+/* Item block */
+.rg-item{
+  padding:22px 22px 20px; margin:14px 0;
+  background:var(--notion-surface);
+  border:1px solid var(--notion-border-soft);
+  border-radius:14px; box-shadow:var(--notion-shadow);
+}
+.rg-item-head{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.rg-emoji{
+  width:38px; height:38px; flex:none; display:grid; place-items:center;
+  border-radius:10px; background:var(--notion-gray-bg); font-size:20px;
+}
+.rg-item-head h3{ margin:0; font-size:19px; flex:1; min-width:120px; }
+.rg-hook{ margin:12px 0 4px; font-size:15.5px; color:var(--notion-text); }
+
+/* Tags */
+.rg-tag{ font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; white-space:nowrap; }
+.rg-tag-go{ background:#e9f4ec; color:#2b8a3e; }
+.rg-tag-watch{ background:var(--notion-blue-bg); color:var(--notion-blue); }
+.rg-tag-cond{ background:var(--notion-orange-bg); color:var(--notion-orange); }
+@media (prefers-color-scheme: dark){
+  .rg-tag-go{ background:rgba(105,219,124,0.12); color:#69db7c; }
+}
+
+/* Two-column pos/neg */
+.rg-cols{ display:grid; grid-template-columns:1fr 1fr; gap:14px 22px; margin-top:14px; }
+.rg-col-label{ display:inline-block; font-size:12px; font-weight:700; letter-spacing:0.02em; margin-bottom:6px; }
+.rg-pos{ color:#2b8a3e; }
+.rg-neg{ color:var(--notion-orange); }
+.rg-col ul{ margin:0; padding-left:18px; }
+.rg-col li{ font-size:14.5px; color:var(--notion-text-soft); margin-bottom:5px; }
+.rg-col li::marker{ color:var(--notion-text-faint); }
+@media (max-width:640px){ .rg-cols{ grid-template-columns:1fr; } }
+
+/* Highlight inline */
+.rg-key{ background:var(--notion-yellow-bg); padding:1px 5px; border-radius:5px; font-weight:600; }
+
+.notion-footer{ margin-top:64px; }
+
+/* Faithful point lists */
+.rg-points{ margin:12px 0 0; padding-left:20px; }
+.rg-points li{ font-size:15px; color:var(--notion-text-soft); margin-bottom:7px; line-height:1.55; }
+.rg-points li::marker{ color:var(--notion-text-faint); }
+.rg-points strong{ color:var(--notion-text); }
+</style></head>
+<body>
+<main class="notion-shell">
+
+<section class="notion-hero">
+  <span class="notion-eyebrow">2606 신사업기획2 · 2026.06.18 보고</span>
+  <h1>오늘의 아이템 발굴 보고</h1>
+  <p>홈쇼핑 방송 목록과 네이버 데이터랩 월간 상위 검색어를 상품 위주로 탐색했습니다. 장사가 좀 될 것 같은 아이템으로 선발했고, 디벨롭 과정에서 마케팅 전략이 더욱 뚜렷해지는 경우 추진해보고자 합니다.</p>
+</section>
+
+<section>
+  <div class="rg-num">1</div>
+  <h2>탐색 소스</h2>
+  <div class="rg-chips">
+    <div class="rg-chip"><span class="rg-chip-ico">📺</span><span>홈쇼핑 방송 목록</span></div>
+    <div class="rg-chip"><span class="rg-chip-ico">📈</span><span>네이버 데이터랩<small>월간 상위 검색어 · 상품 위주</small></span></div>
+  </div>
+</section>
+
+<section>
+  <div class="rg-num">2</div>
+  <h2>후보 아이템</h2>
+
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">🥗</span>
+      <h3>건강기능식품</h3>
+    </div>
+    <p class="rg-hook">여전히 유효. <span class="rg-key">유튜버 전략과 완전히 동일하게 시행.</span></p>
+  </article>
+
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">🧺</span>
+      <h3>빨래건조대 · 식기건조대</h3>
+    </div>
+    <ul class="rg-points">
+      <li>매우 높은 네이버 검색량</li>
+      <li>다양한 상품 형태(동일 모델 찾기 어려움)</li>
+      <li>추후 리빙 카테고리 확장 가능</li>
+      <li>자체 브랜드로 간다면, 이런 리빙에도 <strong>IoT</strong>를 붙이면 어떨까</li>
+    </ul>
+  </article>
+
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">💍</span>
+      <h3>돌반지</h3>
+    </div>
+    <ul class="rg-points">
+      <li>결혼/출산률 소폭 상승, ‘금쪽이’ 올인 트렌드</li>
+      <li>금 자체가 자산이라 재고 감가 부담이 적음</li>
+      <li>종로 도매상을 뚫을 수 있는지</li>
+      <li>소매 차별화 전략 필요</li>
+    </ul>
+  </article>
+
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">☀️</span>
+      <h3>양산</h3>
+    </div>
+    <ul class="rg-points">
+      <li>기후변화로 양산은 더욱 각광받을 듯</li>
+      <li>밝은 낮에 쓰는 특성상 우산에 비해 색깔/디자인별로 여러 양산 구매하길 기대(패션아이템)</li>
+    </ul>
+  </article>
+
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">💄</span>
+      <h3>화장품</h3>
+    </div>
+    <ul class="rg-points">
+      <li>건기식에 비해 피부 트러블 리스크, 그리고 성분보다 브랜드파워가 우세해 저가 도매가 쉬워 보이지 않음 (저가 화장품은 다이소 화장품도 우세)</li>
+      <li>다만 건기식 유튜버가 홈쇼핑 트렌드를 파악해 제품을 선별했다면, 우리는 넷플릭스 드라마 PPL을 확인해 <span class="rg-key">역직구(국내→해외) 드랍쉬핑</span>을 노리면 어때지? (K뷰티+K콘텐츠+해외+드랍쉬핑)</li>
+      <li>쇼피, 라자다 등 플랫폼 있음</li>
+    </ul>
+  </article>
+
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">🔁</span>
+      <h3>렌탈</h3>
+    </div>
+    <ul class="rg-points">
+      <li>렌탈 총판을 통한 렌탈 영업 사업</li>
+      <li>총판에서 주는 뽀찌를 고객에게 얼마나 돌려주느냐가 영업/마진 포인트</li>
+    </ul>
+  </article>
+</section>
+
+<section>
+  <div class="rg-num">3</div>
+  <h2>번외</h2>
+  <article class="rg-item">
+    <div class="rg-item-head">
+      <span class="rg-emoji">✈️</span>
+      <h3>트래블어필리레이트</h3>
+    </div>
+    <ul class="rg-points">
+      <li>쿠팡파트너스의 마이리얼트립 버전</li>
+      <li>여행콘텐츠를 AI로 찍어내고 마지막에 마이리얼트립으로 연결</li>
+    </ul>
+  </article>
+</section>
+
+<p class="notion-footer">2606 신사업기획2 · 260618 보고</p>
+
+</main>
+</body></html>
