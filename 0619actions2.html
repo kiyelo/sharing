@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>개인사업자~쇼피가입 액션 아이템</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --paper: #ffffff;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+      --blue: #2563eb;
+      --blue-soft: #eaf2ff;
+      --green: #059669;
+      --green-soft: #eafaf3;
+      --yellow-soft: #fff7df;
+      --shadow: 0 18px 55px rgba(15, 23, 42, 0.08);
+      --radius: 20px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", Arial, sans-serif;
+      background: linear-gradient(180deg, #eef5ff 0%, var(--bg) 260px);
+      color: var(--ink);
+      line-height: 1.65;
+      word-break: keep-all;
+    }
+    .wrap {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 44px 20px 64px;
+    }
+    .paper {
+      background: var(--paper);
+      border: 1px solid rgba(226, 232, 240, 0.9);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    header {
+      padding: 42px 44px 28px;
+      border-bottom: 1px solid var(--line);
+      background: radial-gradient(circle at top right, #dbeafe 0, transparent 35%), #fff;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: var(--blue-soft);
+      color: #1d4ed8;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    h1 {
+      margin: 0 0 14px;
+      font-size: clamp(30px, 5vw, 44px);
+      letter-spacing: -0.04em;
+      line-height: 1.18;
+    }
+    .goal {
+      margin: 18px 0 0;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--blue-soft);
+      border: 1px solid #bfdbfe;
+      font-size: 16px;
+    }
+    main { padding: 18px 44px 44px; }
+    section {
+      padding: 30px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    section:last-child { border-bottom: 0; }
+    h2 {
+      margin: 0 0 18px;
+      font-size: 26px;
+      line-height: 1.25;
+      letter-spacing: -0.03em;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    h2 .num {
+      flex: 0 0 auto;
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      display: inline-grid;
+      place-items: center;
+      background: #111827;
+      color: #fff;
+      font-size: 16px;
+    }
+    h3 {
+      margin: 24px 0 10px;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+    a { color: #1d4ed8; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 12px 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+      font-size: 15px;
+    }
+    th, td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+    }
+    th {
+      background: #f8fafc;
+      color: #374151;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    tr:last-child td { border-bottom: 0; }
+    .checklist {
+      display: grid;
+      gap: 9px;
+      margin: 12px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+    .checklist li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 11px 13px;
+      background: #fbfdff;
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+    }
+    .box {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      margin-top: 4px;
+      border: 2px solid #9ca3af;
+      border-radius: 5px;
+      background: #fff;
+    }
+    .final-list {
+      counter-reset: step;
+      list-style: none;
+      margin: 14px 0 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+    }
+    .final-list li {
+      counter-increment: step;
+      display: grid;
+      grid-template-columns: 38px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 13px 14px;
+      background: var(--green-soft);
+      border: 1px solid #bbf7d0;
+      border-radius: 14px;
+    }
+    .final-list li::before {
+      content: counter(step);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--green);
+      color: white;
+      display: inline-grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .note {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    strong { font-weight: 800; }
+    @media (max-width: 720px) {
+      .wrap { padding: 18px 12px 36px; }
+      header, main { padding-left: 20px; padding-right: 20px; }
+      table { display: block; overflow-x: auto; white-space: nowrap; }
+      h2 { font-size: 22px; align-items: flex-start; }
+    }
+    @media print {
+      body { background: #fff; }
+      .wrap { max-width: none; padding: 0; }
+      .paper { box-shadow: none; border: 0; border-radius: 0; }
+      a { color: #111827; }
+      section { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <article class="paper">
+      <header>
+        <div class="eyebrow">✅ 실행 체크리스트</div>
+        <h1>개인사업자~쇼피가입 액션 아이템</h1>
+       
+      </header>
+      <main>
+        <section>
+          <h2><span class="num">1</span> 실행 순서</h2>
+          <ol class="final-list">
+            <li><span><a href="https://www.hometax.go.kr/" target="_blank" rel="noopener noreferrer">홈택스</a>에서 개인사업자 신청</span></li>
+            <li><span>주업종을 <strong>전자상거래 소매업 525101</strong>로 등록</span></li>
+            <li><span>부업종을 국내외 온라인 판매 전반으로 폭넓게 추가</span></li>
+            <li><span>사업자등록증 PDF 저장</span></li>
+            <li><span><a href="https://sell.smartstore.naver.com/" target="_blank" rel="noopener noreferrer">네이버 스마트스토어센터</a> 사업자 판매자 가입</span></li>
+            <li><span>스마트스토어 URL 확보</span></li>
+            <li><span>구매안전서비스 이용확인증 발급</span></li>
+            <li><span><a href="https://www.gov.kr/" target="_blank" rel="noopener noreferrer">정부24</a>에서 통신판매업 신고</span></li>
+            <li><span>통신판매업 신고증/신고번호 저장</span></li>
+            <li><span><a href="https://seller.shopee.kr/" target="_blank" rel="noopener noreferrer">Shopee Korea Seller Centre</a> 입점 신청</span></li>
+            <li><span>쇼피 승인 후 셀러센터 로그인</span></li>
+          </ol>
+        </section>
+
+        <section>
+          <h2><span class="num">2</span> <a href="https://www.hometax.go.kr/" target="_blank" rel="noopener noreferrer">홈택스</a>에서 개인사업자 신청</h2>
+          <h3>2-1. 기본 설정</h3>
+          <table>
+            <thead>
+              <tr><th>항목</th><th>입력값</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>사업자 유형</td><td>개인사업자</td></tr>
+              <tr><td>과세 유형</td><td>간이과세자 우선</td></tr>
+              <tr><td>사업장 주소</td><td>실장님이 사용할 주소</td></tr>
+              <tr><td>개업일</td><td>신청일 또는 실제 시작일</td></tr>
+            </tbody>
+          </table>
+
+          <h3>2-2. 주업종 설정</h3>
+          <table>
+            <thead>
+              <tr><th>항목</th><th>입력값</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>주업태</td><td>도매 및 소매업</td></tr>
+              <tr><td>주종목</td><td>전자상거래 소매업</td></tr>
+              <tr><td>주업종코드</td><td>525101</td></tr>
+            </tbody>
+          </table>
+
+          <h3>2-3. 부업종 설정</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span><strong>해외직구대행업 525105</strong> 추가</span></li>
+            <li><span class="box"></span><span>홈택스 업종 검색에서 <strong>통신판매 / 온라인 판매 / 전자상거래 / 무점포 소매 / 상품중개 / 무역 / 수출입 / 생활용품 / 잡화 / 화장품 / 식품</strong> 관련 부업종을 가능한 범위에서 추가</span></li>
+            <li><span class="box"></span><span>지금 판매 품목이 완전히 확정되지 않았으므로, 제외하기보다 <strong>국내외 온라인 판매 전반을 넓게 커버</strong>하도록 추가</span></li>
+            <li><span class="box"></span><span>주업종은 계속 <strong>전자상거래 소매업 525101</strong>로 둔다.</span></li>
+          </ul>
+
+          <h3>2-4. 사업자등록 신청 후</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span>사업자등록증 PDF 저장</span></li>
+            <li><span class="box"></span><span>대표자 신분증 파일 준비</span></li>
+            <li><span class="box"></span><span>사업자용 이메일 준비</span></li>
+            <li><span class="box"></span><span>사업자용 휴대폰 번호 준비</span></li>
+            <li><span class="box"></span><span>정산 받을 은행 계좌 준비</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="num">3</span> 구매안전서비스 이용확인증</h2>
+          <h3>3-1. 발급 방법</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span><a href="https://sell.smartstore.naver.com/" target="_blank" rel="noopener noreferrer">네이버 스마트스토어센터</a> 접속</span></li>
+            <li><span class="box"></span><span>사업자 판매자로 가입</span></li>
+            <li><span class="box"></span><span>사업자등록증 정보 입력</span></li>
+            <li><span class="box"></span><span>대표자 정보 입력</span></li>
+            <li><span class="box"></span><span>정산 계좌 입력</span></li>
+            <li><span class="box"></span><span>스마트스토어 이름 입력</span></li>
+            <li><span class="box"></span><span>스마트스토어 URL 확보</span></li>
+            <li><span class="box"></span><span>관리자 메뉴에서 <strong>구매안전서비스 이용확인증</strong> 발급</span></li>
+            <li><span class="box"></span><span>확인증 PDF 저장</span></li>
+          </ul>
+
+          <h3>3-2. 주안점</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span>스마트스토어는 통신판매업 신고용 URL과 구매안전서비스 이용확인증 발급용으로 먼저 사용</span></li>
+            <li><span class="box"></span><span>스마트스토어에서 실제 상품 판매를 바로 시작할 필요는 없음</span></li>
+            <li><span class="box"></span><span>확인증 파일은 통신판매업 신고 첨부자료로 사용</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="num">4</span> 통신판매업 신고</h2>
+          <h3>4-1. 신고 경로</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span><a href="https://www.gov.kr/" target="_blank" rel="noopener noreferrer">정부24</a> 접속</span></li>
+            <li><span class="box"></span><span><strong>통신판매업 신고</strong> 검색</span></li>
+            <li><span class="box"></span><span>사업장 주소 기준 관할 시·군·구청으로 온라인 신고</span></li>
+          </ul>
+
+          <h3>4-2. 신고 입력 방향</h3>
+          <table>
+            <thead>
+              <tr><th>항목</th><th>입력값</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>상호</td><td>사업자등록증과 동일</td></tr>
+              <tr><td>사업자등록번호</td><td>사업자등록증 기준</td></tr>
+              <tr><td>판매 방식</td><td>인터넷 / 온라인 / 오픈마켓 판매</td></tr>
+              <tr><td>취급 품목</td><td>생활용품, 잡화, 뷰티용품, 화장품, 식품, 기타 온라인 판매 상품</td></tr>
+              <tr><td>인터넷 도메인</td><td>네이버 스마트스토어 URL 또는 쇼피 상점 URL</td></tr>
+            </tbody>
+          </table>
+
+          <h3>4-3. 완료 후</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span>통신판매업 신고증 PDF 저장</span></li>
+            <li><span class="box"></span><span>통신판매업 신고번호 저장</span></li>
+            <li><span class="box"></span><span>신고번호를 사업자 자료 폴더에 기록</span></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2><span class="num">5</span> <a href="https://seller.shopee.kr/" target="_blank" rel="noopener noreferrer">Shopee Korea Seller Centre</a> 입점 신청</h2>
+          <h3>5-1. 준비물</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span>사업자등록증 PDF</span></li>
+            <li><span class="box"></span><span>대표자 신분증 파일</span></li>
+            <li><span class="box"></span><span>사업자 이메일</span></li>
+            <li><span class="box"></span><span>사업자 휴대폰 번호</span></li>
+            <li><span class="box"></span><span>정산 계좌 정보</span></li>
+            <li><span class="box"></span><span>영문 상점명</span></li>
+            <li><span class="box"></span><span>상점 로고 이미지</span></li>
+            <li><span class="box"></span><span>영문 상점 소개문</span></li>
+            <li><span class="box"></span><span>판매 예정 상품군 설명</span></li>
+            <li><span class="box"></span><span>통신판매업 신고번호</span></li>
+          </ul>
+
+          <h3>5-2. 신청 순서</h3>
+          <ul class="checklist">
+            <li><span class="box"></span><span><a href="https://seller.shopee.kr/" target="_blank" rel="noopener noreferrer">Shopee Korea Seller Centre</a> 접속</span></li>
+            <li><span class="box"></span><span>가입/입점 신청 시작</span></li>
+            <li><span class="box"></span><span>이메일 인증</span></li>
+            <li><span class="box"></span><span>휴대폰 인증</span></li>
+            <li><span class="box"></span><span>사업자 정보 입력</span></li>
+            <li><span class="box"></span><span>사업자등록증 업로드</span></li>
+            <li><span class="box"></span><span>대표자 정보 입력</span></li>
+            <li><span class="box"></span><span>대표자 신분증 업로드</span></li>
+            <li><span class="box"></span><span>상점명 입력</span></li>
+            <li><span class="box"></span><span>상점 로고 업로드</span></li>
+            <li><span class="box"></span><span>상점 소개문 입력</span></li>
+            <li><span class="box"></span><span>판매 예정 상품군 입력</span></li>
+            <li><span class="box"></span><span>1차 판매 국가는 <strong>싱가포르</strong>로 설정</span></li>
+            <li><span class="box"></span><span>신청서 제출</span></li>
+            <li><span class="box"></span><span>승인 메일 확인</span></li>
+            <li><span class="box"></span><span>승인 후 셀러센터 로그인</span></li>
+          </ul>
+        </section>
+      </main>
+    </article>
+  </div>
+</body>
+</html>
