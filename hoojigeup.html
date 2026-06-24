@@ -7,7 +7,7 @@
   <style>
     body {
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      max-width: 960px;
+      max-width: 920px;
       margin: 32px auto;
       padding: 0 20px;
       background: #f7f7f5;
@@ -16,25 +16,23 @@
 
     h1 {
       font-size: 24px;
-      margin-bottom: 8px;
+      margin: 0 0 8px;
     }
 
     .desc {
       color: #666;
-      margin-bottom: 24px;
+      margin: 0 0 20px;
       line-height: 1.5;
+      font-size: 14px;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-
-    @media (max-width: 800px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    .panel {
+      background: #fff;
+      border: 1px solid #e2e2dc;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 18px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
     }
 
     label {
@@ -52,31 +50,35 @@
       padding: 12px;
       font-size: 14px;
       background: #fff;
-      resize: vertical;
+      line-height: 1.55;
+      font-family: inherit;
     }
 
     textarea {
-      min-height: 260px;
-      line-height: 1.5;
+      resize: vertical;
     }
 
-    .field-group {
+    input {
       margin-bottom: 14px;
     }
 
-    .panel {
-      background: white;
-      border: 1px solid #e2e2dc;
-      border-radius: 16px;
-      padding: 18px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    #source {
+      min-height: 180px;
+    }
+
+    #titleResult {
+      min-height: 52px;
+    }
+
+    #bodyResult {
+      min-height: 340px;
     }
 
     .buttons {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin: 16px 0;
+      margin-top: 14px;
     }
 
     button {
@@ -98,17 +100,6 @@
       color: #222;
     }
 
-    .small {
-      font-size: 12px;
-      color: #777;
-      line-height: 1.5;
-      margin-top: 8px;
-    }
-
-    .result-title {
-      min-height: 42px;
-    }
-
     .toast {
       display: none;
       margin-top: 12px;
@@ -120,107 +111,48 @@
       font-size: 14px;
     }
 
-    .warn {
-      background: #fff6df;
-      color: #7a5200;
+    .error {
+      display: none;
+      margin-top: 12px;
       padding: 10px 12px;
       border-radius: 10px;
-      font-size: 13px;
+      background: #fff0f0;
+      color: #a33;
+      font-weight: 700;
+      font-size: 14px;
       line-height: 1.5;
-      margin-bottom: 14px;
     }
   </style>
 </head>
 <body>
   <h1>후지급 템플릿 생성기</h1>
   <p class="desc">
-    요청 문구를 붙여넣으면 계약번호, 차량번호, 계좌, 은행, 예금주, 금액, 지급 사유를 추출해서
-    ITSM 요청 템플릿으로 변환합니다.
+    요청 문구를 붙여넣고 참조 URL을 입력하면 ITSM 제목/내용 템플릿을 자동 생성합니다.
   </p>
 
-  <div class="grid">
-    <div class="panel">
-      <label for="source">요청 원문</label>
-      <textarea id="source">후지급 요청(올드카 책임보험 가입료)
-▶ 계약번호 : KG-P-03421호
-▶ 차량번호 : 78마5846
-▶ 입금계좌 : 242090-78-031505
-▶ 입금은행 : 국민
-▶ 예금주 : DB손해보험
-▶ 입금액 : 25,600원</textarea>
+  <div class="panel">
+    <label for="source">요청 원문</label>
+    <textarea id="source" placeholder="여기에 후지급 요청 내용을 붙여넣으세요."></textarea>
 
-      <div class="buttons">
-        <button onclick="parseSource()">템플릿 채우기</button>
-        <button class="ghost" onclick="clearAll()">초기화</button>
-      </div>
-
-      <p class="small">
-        계좌번호는 자동으로 하이픈을 제거합니다. 예: 242090-78-031505 → 24209078031505
-      </p>
-    </div>
-
-    <div class="panel">
-      <div class="warn">
-        아래 값은 필요하면 직접 수정할 수 있어요.  
-        특히 “참조 계약번호”와 “참조 URL”은 원문에 없으면 비워둔 상태로 생성됩니다.
-      </div>
-
-      <div class="field-group">
-        <label for="contractNo">계약번호</label>
-        <input id="contractNo" />
-      </div>
-
-      <div class="field-group">
-        <label for="carRegNo">차량번호</label>
-        <input id="carRegNo" />
-      </div>
-
-      <div class="field-group">
-        <label for="bank">입금은행</label>
-        <input id="bank" />
-      </div>
-
-      <div class="field-group">
-        <label for="accountNo">입금계좌</label>
-        <input id="accountNo" />
-      </div>
-
-      <div class="field-group">
-        <label for="holder">예금주</label>
-        <input id="holder" />
-      </div>
-
-      <div class="field-group">
-        <label for="amount">입금액</label>
-        <input id="amount" />
-      </div>
-
-      <div class="field-group">
-        <label for="reason">지급 사유</label>
-        <input id="reason" />
-      </div>
-
-      <div class="field-group">
-        <label for="referContractNo">참조 계약번호 / Please check</label>
-        <input id="referContractNo" placeholder="예: KG-P-03435호" />
-      </div>
-
-      <div class="field-group">
-        <label for="referUrl">참조 URL</label>
-        <input id="referUrl" placeholder="https://..." />
-      </div>
-    </div>
-  </div>
-
-  <div class="panel" style="margin-top: 20px;">
-    <label for="titleResult">제목</label>
-    <textarea id="titleResult" class="result-title" readonly></textarea>
-
-    <label for="bodyResult" style="margin-top: 16px;">내용</label>
-    <textarea id="bodyResult" readonly></textarea>
+    <label for="referUrl" style="margin-top: 16px;">참조 URL</label>
+    <input id="referUrl" type="url" placeholder="https://kgmcpo.kg-mobility.com/..." />
 
     <div class="buttons">
-      <button onclick="generateTemplate()">결과 다시 생성</button>
+      <button onclick="generate()">템플릿 생성</button>
+      <button class="ghost" onclick="clearAll()">초기화</button>
+    </div>
+
+    <div id="error" class="error"></div>
+  </div>
+
+  <div class="panel">
+    <label for="titleResult">제목</label>
+    <textarea id="titleResult" readonly placeholder="생성된 제목이 여기에 표시됩니다."></textarea>
+
+    <label for="bodyResult" style="margin-top: 16px;">내용</label>
+    <textarea id="bodyResult" readonly placeholder="생성된 내용이 여기에 표시됩니다."></textarea>
+
+    <div class="buttons">
       <button class="secondary" onclick="copyTitle()">제목 복사</button>
       <button class="secondary" onclick="copyBody()">내용 복사</button>
       <button class="secondary" onclick="copyAll()">제목+내용 복사</button>
@@ -230,115 +162,163 @@
   </div>
 
   <script>
-    function getValueByLabel(text, label) {
-      const pattern = new RegExp(label + "\\s*[:：]\\s*([^\\n\\r]+)", "i");
-      const match = text.match(pattern);
-      return match ? clean(match[1]) : "";
-    }
-
     function clean(value) {
       return String(value || "")
         .replace(/^▶\s*/, "")
         .trim();
     }
 
+    function normalizeInputText(text) {
+      return String(text || "")
+        .replace(/<br\s*\/?>/gi, "\n")
+        .replace(/&nbsp;/gi, " ");
+    }
+
+    function getValueByLabel(text, label) {
+      const normalized = normalizeInputText(text);
+      const pattern = new RegExp(label + "\\s*[:：]\\s*([^\\n\\r]+)", "i");
+      const match = normalized.match(pattern);
+      return match ? clean(match[1]) : "";
+    }
+
+    function extractReason(text) {
+      const normalized = normalizeInputText(text);
+
+      const titlePattern = /후\s*지급\s*요청\s*[\(（]\s*([^)）]+?)\s*[\)）]/i;
+      const titleMatch = normalized.match(titlePattern);
+
+      if (titleMatch && titleMatch[1]) {
+        return clean(titleMatch[1]);
+      }
+
+      const labelReason = getValueByLabel(normalized, "지급\\s*사유");
+      if (labelReason) {
+        return labelReason;
+      }
+
+      return "";
+    }
+
     function normalizeBank(value) {
-      let bank = clean(value);
+      const bank = clean(value).replace(/\s/g, "");
 
       const bankMap = {
         "국민": "국민은행",
         "국민은행": "국민은행",
         "신한": "신한은행",
+        "신한은행": "신한은행",
         "우리": "우리은행",
+        "우리은행": "우리은행",
         "하나": "하나은행",
+        "하나은행": "하나은행",
         "농협": "농협은행",
+        "농협은행": "농협은행",
         "기업": "기업은행",
+        "기업은행": "기업은행",
         "카카오": "카카오뱅크",
+        "카카오뱅크": "카카오뱅크",
         "토스": "토스뱅크",
-        "케이": "케이뱅크"
+        "토스뱅크": "토스뱅크",
+        "케이": "케이뱅크",
+        "케이뱅크": "케이뱅크"
       };
 
-      return bankMap[bank] || bank;
+      return bankMap[bank] || clean(value);
     }
 
     function normalizeAccount(value) {
       return clean(value).replace(/[^0-9]/g, "");
     }
 
-    function normalizeAmount(value) {
-      return clean(value)
-        .replace(/원/g, "")
-        .replace(/\s/g, "")
-        .trim();
+    function formatAmount(value) {
+      const onlyNumber = clean(value).replace(/[^0-9]/g, "");
+
+      if (!onlyNumber) return "";
+
+      return Number(onlyNumber).toLocaleString("ko-KR");
     }
 
-    function extractReason(text) {
-      const match = text.match(/후지급\s*요청\s*\(([^)]+)\)/);
-      return match ? clean(match[1]) : "";
+    function validate(fields) {
+      const missing = [];
+
+      if (!fields.contractNo) missing.push("계약번호");
+      if (!fields.carRegNo) missing.push("차량번호");
+      if (!fields.accountNo) missing.push("입금계좌");
+      if (!fields.bank) missing.push("입금은행");
+      if (!fields.holder) missing.push("예금주");
+      if (!fields.amount) missing.push("입금액");
+      if (!fields.reason) missing.push("지급 사유");
+      if (!fields.referUrl) missing.push("참조 URL");
+
+      return missing;
     }
 
-    function parseSource() {
+    function showError(message) {
+      const error = document.getElementById("error");
+      error.textContent = message;
+      error.style.display = "block";
+    }
+
+    function hideError() {
+      const error = document.getElementById("error");
+      error.textContent = "";
+      error.style.display = "none";
+    }
+
+    function generate() {
+      hideError();
+
       const text = document.getElementById("source").value;
-
-      document.getElementById("contractNo").value = getValueByLabel(text, "계약번호");
-      document.getElementById("carRegNo").value = getValueByLabel(text, "차량번호");
-      document.getElementById("accountNo").value = normalizeAccount(getValueByLabel(text, "입금계좌"));
-      document.getElementById("bank").value = normalizeBank(getValueByLabel(text, "입금은행"));
-      document.getElementById("holder").value = getValueByLabel(text, "예금주");
-      document.getElementById("amount").value = normalizeAmount(getValueByLabel(text, "입금액"));
-      document.getElementById("reason").value = extractReason(text);
-
-      generateTemplate();
-    }
-
-    function generateTemplate() {
-      const contractNo = document.getElementById("contractNo").value.trim();
-      const carRegNo = document.getElementById("carRegNo").value.trim();
-      const bank = document.getElementById("bank").value.trim();
-      const accountNo = normalizeAccount(document.getElementById("accountNo").value);
-      const holder = document.getElementById("holder").value.trim();
-      const amount = normalizeAmount(document.getElementById("amount").value);
-      const reason = document.getElementById("reason").value.trim();
-      const referContractNo = document.getElementById("referContractNo").value.trim();
       const referUrl = document.getElementById("referUrl").value.trim();
 
-      document.getElementById("accountNo").value = accountNo;
-      document.getElementById("amount").value = amount;
+      const fields = {
+        contractNo: getValueByLabel(text, "계약번호"),
+        carRegNo: getValueByLabel(text, "차량번호"),
+        accountNo: normalizeAccount(getValueByLabel(text, "입금계좌")),
+        bank: normalizeBank(getValueByLabel(text, "입금은행")),
+        holder: getValueByLabel(text, "예금주"),
+        amount: formatAmount(getValueByLabel(text, "입금액")),
+        reason: extractReason(text),
+        referUrl: referUrl
+      };
 
-      const title = `[ITSM 긴급] Request for editing '후 지급' data (${contractNo})`;
+      const missing = validate(fields);
 
-      const checkLine = referContractNo
-        ? `Please check ${referContractNo}`
-        : `Please check`;
+      if (missing.length > 0) {
+        showError("누락된 항목이 있어요: " + missing.join(", "));
+        document.getElementById("titleResult").value = "";
+        document.getElementById("bodyResult").value = "";
+        return;
+      }
 
-      const urlLine = referUrl
-        ? referUrl
-        : "[참조 URL 입력]";
+      const title = `[ITSM 긴급] Request for editing '후 지급' data (${fields.contractNo})`;
 
       const body = `I received the request for the '후 지급'
-${checkLine}
+Please check ${fields.contractNo}
 
 상태 col: 결재대기
 구분 col: 후지급
-출금금액 col: ${amount}
+출금금액 col: ${fields.amount}
 계약서번호 col:
-${contractNo}
-CAR_REG_NO : ${carRegNo}
+${fields.contractNo}
+CAR_REG_NO : ${fields.carRegNo}
 other cols > Refer to this contract
-${urlLine}
+${fields.referUrl}
 
-은행 col: ${bank}
+은행 col: ${fields.bank}
 계좌번호 col:
-${accountNo}
-예금주 col: ${holder}
+${fields.accountNo}
+예금주 col: ${fields.holder}
 신청 유형: 기타
-지급 사유 col: ${reason}`;
+지급 사유 col: ${fields.reason}`;
 
       document.getElementById("titleResult").value = title;
       document.getElementById("bodyResult").value = body;
     }
 
     async function copyText(text) {
+      if (!text.trim()) return;
+
       await navigator.clipboard.writeText(text);
       showToast();
     }
@@ -354,6 +334,7 @@ ${accountNo}
     function copyAll() {
       const title = document.getElementById("titleResult").value;
       const body = document.getElementById("bodyResult").value;
+
       copyText(`제목
 ${title}
 
@@ -362,35 +343,22 @@ ${body}`);
     }
 
     function clearAll() {
-      const ids = [
-        "source",
-        "contractNo",
-        "carRegNo",
-        "bank",
-        "accountNo",
-        "holder",
-        "amount",
-        "reason",
-        "referContractNo",
-        "referUrl",
-        "titleResult",
-        "bodyResult"
-      ];
+      hideError();
 
-      ids.forEach(id => {
-        document.getElementById(id).value = "";
-      });
+      document.getElementById("source").value = "";
+      document.getElementById("referUrl").value = "";
+      document.getElementById("titleResult").value = "";
+      document.getElementById("bodyResult").value = "";
     }
 
     function showToast() {
       const toast = document.getElementById("toast");
       toast.style.display = "block";
+
       setTimeout(() => {
         toast.style.display = "none";
-      }, 1600);
+      }, 1500);
     }
-
-    parseSource();
   </script>
 </body>
 </html>
