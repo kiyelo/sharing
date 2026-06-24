@@ -4,156 +4,142 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
 <title>Kkiu To Do</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendard-variable.css"/>
 <style>
   :root{
-    --bg:#f1f0ec; --panel:#fff; --ink:#191a1d; --soft:#84878e; --faint:#b6b8bd;
-    --line:#e8e8e2; --line2:#dcdcd5; --accent:#dd8e2e; --accent-soft:#f8ecd6; --accent-ink:#946018;
-    --danger:#c1554f; --r:18px; --nav-h:66px;
-    --sh-s:0 1px 3px rgba(20,22,18,.05),0 4px 14px rgba(20,22,18,.05);
-    --sh-m:0 12px 30px rgba(20,22,18,.12); --sh-l:0 28px 72px rgba(20,22,18,.22);
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --paper:#fbf8f2; --surface:#fff; --ink:#1c1a17; --ink2:#5c564e; --sub:#938c80; --faint:#bdb6a8;
+    --hair:#efe9dd; --accent:#e0894a; --accent-soft:#fbebda; --accent-ink:#b5662b; --danger:#c75b4e;
+    --r:16px; --nav-h:64px;
+    --sh-card:0 1px 2px rgba(70,55,30,.05),0 4px 14px rgba(70,55,30,.05);
+    --sh-slot:0 12px 30px rgba(80,55,25,.14); --sh-pop:0 26px 70px rgba(50,40,20,.22);
+    --font:"Pretendard Variable",Pretendard,-apple-system,BlinkMacSystemFont,system-ui,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
   }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;overflow:hidden}
-  body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;
-    color:var(--ink);background:linear-gradient(165deg,#e6e6df,#f3f2ee 45%,#e9e9e1);display:grid;place-items:center;padding:24px 14px}
+  body{font-family:var(--font);color:var(--ink);-webkit-font-smoothing:antialiased;
+    background:linear-gradient(168deg,#efe9dd,#f7f2e9 46%,#ece5d8);display:grid;place-items:center;padding:24px 14px}
   button,input,textarea{font:inherit;color:inherit}
   button{-webkit-tap-highlight-color:transparent;cursor:pointer;border:0;background:none}
   .wrap{width:min(100%,416px)}
-  .phone{position:relative;width:100%;height:min(880px,calc(100vh - 48px));min-height:680px;display:flex;flex-direction:column;
-    overflow:hidden;border-radius:44px;background:var(--bg);border:1px solid rgba(20,22,18,.07);box-shadow:var(--sh-l)}
-  .phone::before{content:"";position:absolute;z-index:60;top:11px;left:50%;width:108px;height:30px;transform:translateX(-50%);border-radius:999px;background:rgba(20,22,18,.05)}
+  .phone{position:relative;width:100%;height:min(884px,calc(100vh - 48px));min-height:680px;display:flex;flex-direction:column;
+    overflow:hidden;border-radius:46px;background:var(--paper);border:1px solid rgba(70,55,30,.06);box-shadow:var(--sh-pop)}
+  .phone::before{content:"";position:absolute;z-index:60;top:12px;left:50%;width:104px;height:28px;transform:translateX(-50%);border-radius:999px;background:rgba(70,55,30,.05)}
   #app{flex:1;display:flex;flex-direction:column;min-height:0}
 
-  .head{flex:none;padding:42px 22px 10px}
-  .head-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-  .brand{display:flex;align-items:baseline;gap:8px}
-  .kick{margin:0 0 6px;font-size:10px;font-weight:800;letter-spacing:.2em;color:var(--faint)}
-  .ttl{margin:0;font-size:28px;font-weight:850;letter-spacing:-.045em;line-height:1}
-  .ttl em{font-style:normal;color:var(--faint);font-weight:800}
-  .chip{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:var(--panel);
-    border:1px solid var(--line);box-shadow:var(--sh-s);font-size:11px;font-weight:750;color:var(--soft);white-space:nowrap}
-  .chip .d{width:6px;height:6px;border-radius:50%;background:var(--accent)}
-  .head-sub{margin:12px 0 0;font-size:11.5px;line-height:1.45;font-weight:650;color:var(--soft);word-break:keep-all}
+  .head{flex:none;padding:46px 24px 14px}
+  .ttl{margin:0;font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.05}
+  .head-sub{margin:7px 0 0;font-size:13px;font-weight:560;color:var(--sub);letter-spacing:-.01em}
 
   .stage{flex:1;min-height:0;position:relative;overflow:hidden}
   .qvp{position:absolute;inset:0;overflow:hidden;touch-action:none}
-  .qtrack{position:absolute;left:0;right:0;top:0;padding:0 16px;will-change:transform}
+  .qtrack{position:absolute;left:0;right:0;top:0;padding:0 18px;will-change:transform}
   .qfade{position:absolute;left:0;right:0;z-index:6;pointer-events:none}
-  .qfade.t{top:0;height:50px;background:linear-gradient(to bottom,var(--bg) 12%,transparent)}
-  .qfade.b{bottom:0;height:calc(var(--nav-h) + 50px);background:linear-gradient(to top,var(--bg) 42%,transparent)}
+  .qfade.t{top:0;height:46px;background:linear-gradient(to bottom,var(--paper) 16%,transparent)}
+  .qfade.b{bottom:0;height:calc(var(--nav-h) + 56px);background:linear-gradient(to top,var(--paper) 44%,transparent)}
 
-  /* card */
-  .card{position:relative;display:grid;grid-template-columns:24px 1fr auto;gap:11px;align-items:center;height:58px;
-    margin-bottom:9px;padding:0 13px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);
-    box-shadow:var(--sh-s);user-select:none;transition:transform .16s cubic-bezier(.2,.7,.3,1),box-shadow .15s,border-color .15s,opacity .15s}
-  .qtrack .card{transition:transform .17s cubic-bezier(.2,.7,.3,1),box-shadow .15s,opacity .15s}
+  .card{position:relative;display:grid;grid-template-columns:24px 1fr auto;gap:13px;align-items:center;height:60px;
+    margin-bottom:10px;padding:0 16px;border-radius:var(--r);background:var(--surface);box-shadow:var(--sh-card);
+    user-select:none;transition:transform .18s cubic-bezier(.2,.7,.3,1),box-shadow .16s,opacity .16s}
+  .qtrack .card{transition:transform .19s cubic-bezier(.2,.7,.3,1),box-shadow .16s,opacity .16s}
   .card.drag{opacity:.4}
-  .card.sel-on{border-color:var(--ink);box-shadow:0 0 0 2px var(--ink),var(--sh-s)}
-  .card.t1::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:3px;border-radius:0 3px 3px 0;background:var(--accent)}
-  .ck{width:22px;height:22px;border-radius:50%;border:1.7px solid var(--line2);background:#fff;display:grid;place-items:center;color:transparent;transition:.14s}
-  .ck:hover{border-color:var(--ink)}
-  .ck.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .card.sel-on{box-shadow:0 0 0 2px var(--accent),var(--sh-card)}
+  .ck{width:23px;height:23px;border-radius:50%;border:2px solid #e3ddd0;background:transparent;display:grid;place-items:center;color:transparent;transition:.15s}
+  .ck:hover{border-color:var(--accent)}
+  .ck.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .ck svg{width:12px;height:12px}
-  .selbox{width:22px;height:22px;border-radius:7px;border:1.8px solid var(--line2);display:grid;place-items:center;color:transparent}
-  .selbox.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .selbox{width:23px;height:23px;border-radius:7px;border:2px solid #e3ddd0;display:grid;place-items:center;color:transparent}
+  .selbox.on{background:var(--accent);border-color:var(--accent);color:#fff}
   .selbox svg{width:13px;height:13px}
   .mid{min-width:0;display:flex;flex-direction:column;justify-content:center}
-  .t-title{margin:0;font-size:14.5px;font-weight:680;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .t-title[contenteditable="true"]{outline:none;border-bottom:2px solid var(--ink);overflow:visible}
-  .card.done .t-title{text-decoration:line-through;color:var(--soft)}
-  .card.done{opacity:.6}
-  .sub{margin-top:2px;font-size:10.5px;font-weight:700;color:var(--faint)}
-  .acts{display:flex;align-items:center;gap:2px}
-  .rk{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--faint);margin-right:2px}
-  .card.t1 .rk,.card.t2 .rk,.card.t3 .rk{color:var(--accent-ink)}
-  .ico{width:30px;height:30px;border-radius:9px;color:var(--faint);display:grid;place-items:center;transition:.14s}
-  .ico:hover{background:#efefea;color:var(--ink)}
-  .ico.fav.on{color:var(--accent)}
+  .trow{display:flex;align-items:center;gap:7px;min-width:0}
+  .dot{flex:none;width:6px;height:6px;border-radius:50%;background:var(--accent)}
+  .t-title{margin:0;font-size:15px;font-weight:560;letter-spacing:-.015em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .card.t1 .t-title{font-weight:640}
+  .t-title[contenteditable="true"]{outline:none;border-bottom:2px solid var(--accent);overflow:visible}
+  .card.done .t-title{color:var(--faint);text-decoration:line-through}
+  .card.done{box-shadow:none;background:rgba(255,255,255,.55)}
+  .sub{margin-top:2px;font-size:11px;font-weight:560;color:var(--faint)}
+  .acts{display:flex;align-items:center;gap:1px}
+  .ico{width:30px;height:30px;border-radius:9px;color:var(--faint);display:grid;place-items:center;opacity:.7;transition:.14s}
+  .ico:hover{background:#f4eee2;color:var(--ink2);opacity:1}
+  .ico.fav.on{color:var(--accent);opacity:1}
   .ico svg{width:16px;height:16px;pointer-events:none}
   .grip{cursor:grab;touch-action:none}
 
-  /* insert slot */
-  .slotwrap{position:absolute;left:0;right:0;z-index:8;transform:translateY(-50%);padding:0 16px}
-  .sguide{position:absolute;left:30px;right:30px;top:50%;border-top:1.5px dashed rgba(221,142,46,.4);z-index:-1}
-  .slot{position:relative;display:grid;grid-template-columns:42px 1fr 46px;gap:11px;align-items:center;padding:11px;
-    border-radius:20px;background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh-m)}
-  .slot.thunk{animation:thunk .22s ease}
-  @keyframes thunk{40%{transform:scale(.984)}100%{transform:none}}
-  .sbadge{width:42px;height:42px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center}
+  .slotwrap{position:absolute;left:0;right:0;z-index:8;transform:translateY(-50%);padding:0 18px}
+  .slot{position:relative;display:grid;grid-template-columns:44px 1fr 44px;gap:13px;align-items:center;padding:12px;
+    border-radius:18px;background:var(--surface);box-shadow:var(--sh-slot)}
+  .slot.thunk{animation:thunk .24s ease}
+  @keyframes thunk{42%{transform:scale(.985)}100%{transform:none}}
+  .sbadge{width:44px;height:44px;border-radius:14px;background:var(--accent-soft);color:var(--accent-ink);display:grid;place-items:center}
   .sbadge svg{width:20px;height:20px}
   .sbody{min-width:0}
-  .si{width:100%;height:28px;border:0;outline:0;background:transparent;font-size:16px;font-weight:720;letter-spacing:-.02em}
-  .si::placeholder{color:var(--faint);font-weight:600}
-  .srow{display:flex;align-items:center;gap:8px;margin-top:1px}
-  .spill{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:800;color:var(--accent-ink);background:var(--accent-soft);padding:2px 8px;border-radius:999px}
-  .spill b{font-family:var(--mono)}
-  .schev{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:750;color:var(--faint)}
-  .schev svg{width:12px;height:12px}
-  .save{width:46px;height:46px;border-radius:15px;background:var(--ink);color:#fff;display:grid;place-items:center;box-shadow:0 8px 18px rgba(25,26,29,.25);transition:.15s}
-  .save:hover{transform:translateY(-1px)}
+  .si{width:100%;height:26px;border:0;outline:0;background:transparent;font-size:16px;font-weight:560;letter-spacing:-.02em}
+  .si::placeholder{color:var(--faint);font-weight:500}
+  .snote{margin-top:2px;font-size:11.5px;font-weight:560;color:var(--sub);letter-spacing:-.01em}
+  .snote b{color:var(--accent-ink);font-weight:800}
+  .save{width:44px;height:44px;border-radius:14px;background:var(--accent);color:#fff;display:grid;place-items:center;box-shadow:0 8px 16px rgba(224,137,74,.32);transition:.15s}
+  .save:hover{filter:brightness(1.04);transform:translateY(-1px)}
   .save svg{width:19px;height:19px}
 
-  /* lists (done/search/more/selection) */
-  .scroller{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:6px 16px calc(var(--nav-h) + 26px)}
+  .scroller{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding:6px 18px calc(var(--nav-h) + 28px)}
   .scroller::-webkit-scrollbar{display:none}
-  .list{display:flex;flex-direction:column;gap:9px}
-  .list .card{height:auto;min-height:58px;padding:11px 13px;margin:0}
+  .list{display:flex;flex-direction:column;gap:10px}
+  .list .card{height:auto;min-height:60px;padding:12px 16px;margin:0}
   .list .t-title{white-space:normal;overflow-wrap:anywhere}
   .empty{display:grid;place-items:center;min-height:230px;padding:16px}
-  .empty-c{width:100%;padding:26px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh-s);text-align:center}
-  .empty-c h3{margin:0 0 6px;font-size:17px;letter-spacing:-.03em}
-  .empty-c p{margin:0;font-size:12.5px;line-height:1.55;font-weight:600;color:var(--soft);word-break:keep-all}
-  .pcard{padding:15px 16px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line);box-shadow:var(--sh-s)}
-  .pcard h3{margin:0 0 6px;font-size:15px;letter-spacing:-.03em}
-  .pcard p{margin:0;font-size:12px;line-height:1.55;font-weight:600;color:var(--soft);word-break:keep-all}
-  .field{width:100%;border:1px solid var(--line2);background:#fff;border-radius:14px;padding:12px 14px;font-size:15px;font-weight:700;outline:0;box-shadow:var(--sh-s)}
-  .field:focus{border-color:var(--ink)}
-  textarea.field{min-height:100px;resize:vertical;font-family:var(--mono);font-size:12px;font-weight:500}
-  .rbtn{width:100%;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);background:var(--panel);border-radius:14px;padding:13px 15px;font-size:14px;font-weight:750;box-shadow:var(--sh-s)}
-  .rbtn:hover{border-color:var(--ink)}
-  .rbtn.danger:hover{border-color:var(--danger);color:var(--danger)}
-  mark{background:var(--accent-soft);border-radius:4px;padding:0 2px}
+  .empty-c{width:100%;padding:30px 26px;border-radius:20px;background:var(--surface);box-shadow:var(--sh-card);text-align:center}
+  .empty-c h3{margin:0 0 7px;font-size:18px;font-weight:680;letter-spacing:-.03em}
+  .empty-c p{margin:0;font-size:13px;line-height:1.6;font-weight:560;color:var(--sub);word-break:keep-all}
+  .pcard{padding:17px 18px;border-radius:18px;background:var(--surface);box-shadow:var(--sh-card)}
+  .pcard h3{margin:0 0 6px;font-size:15px;font-weight:680;letter-spacing:-.02em}
+  .pcard p{margin:0;font-size:12.5px;line-height:1.6;font-weight:560;color:var(--sub);word-break:keep-all}
+  .field{width:100%;background:var(--surface);border:0;border-radius:14px;padding:13px 15px;font-size:15px;font-weight:560;outline:0;box-shadow:var(--sh-card)}
+  .field:focus{box-shadow:0 0 0 2px var(--accent),var(--sh-card)}
+  textarea.field{min-height:100px;resize:vertical;font-family:ui-monospace,Menlo,monospace;font-size:12px;font-weight:500}
+  .rbtn{width:100%;display:flex;justify-content:space-between;align-items:center;background:var(--surface);border-radius:14px;padding:14px 16px;font-size:14px;font-weight:600;box-shadow:var(--sh-card);color:var(--ink)}
+  .rbtn span{color:var(--faint)}
+  .rbtn:hover{color:var(--accent-ink)}
+  .rbtn.danger:hover{color:var(--danger)}
+  mark{background:var(--accent-soft);border-radius:4px;padding:0 2px;color:var(--accent-ink)}
 
-  .selbar{position:absolute;left:16px;right:16px;top:10px;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px 9px 15px;border-radius:18px;background:var(--ink);color:#fff;box-shadow:var(--sh-m)}
-  .selbar b{font-size:13px;font-weight:800}
+  .selbar{position:absolute;left:18px;right:18px;top:12px;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 11px 10px 16px;border-radius:18px;background:var(--ink);color:#fff;box-shadow:var(--sh-slot)}
+  .selbar b{font-size:13px;font-weight:700}
   .sb-acts{display:flex;gap:7px}
-  .sb-btn{border-radius:11px;padding:8px 13px;font-size:12px;font-weight:800;background:rgba(255,255,255,.16);color:#fff}
+  .sb-btn{border-radius:11px;padding:9px 13px;font-size:12px;font-weight:700;background:rgba(255,255,255,.15);color:#fff}
   .sb-btn.del{background:var(--danger)}
 
-  .nav{position:absolute;left:14px;right:14px;bottom:14px;z-index:50;height:var(--nav-h);display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:7px;border-radius:24px;background:rgba(255,255,255,.84);border:1px solid var(--line);box-shadow:0 16px 38px rgba(20,22,18,.15);backdrop-filter:blur(20px)}
-  .nb{position:relative;border-radius:18px;color:var(--soft);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:800;transition:.15s}
-  .nb svg{width:20px;height:20px}
-  .nb.on{background:var(--ink);color:#fff}
-  .nbg{position:absolute;top:6px;right:10px;min-width:15px;height:15px;padding:0 4px;border-radius:999px;background:var(--accent);color:#fff;font-size:9px;font-weight:900;display:grid;place-items:center}
-  .nb.on .nbg{background:#fff;color:var(--ink)}
+  .nav{position:absolute;left:16px;right:16px;bottom:16px;z-index:50;height:var(--nav-h);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;border-radius:22px;background:rgba(251,248,242,.82);box-shadow:0 14px 36px rgba(60,45,25,.14);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.5)}
+  .nb{position:relative;border-radius:16px;color:var(--faint);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:700;letter-spacing:-.01em;transition:.16s}
+  .nb svg{width:21px;height:21px}
+  .nb.on{background:var(--accent-soft);color:var(--accent-ink)}
 
-  .toast{position:absolute;left:50%;bottom:92px;z-index:80;transform:translate(-50%,14px);opacity:0;pointer-events:none;max-width:calc(100% - 40px);padding:10px 16px;border-radius:999px;background:rgba(22,23,27,.92);color:#fff;font-size:12.5px;font-weight:750;white-space:nowrap;transition:.2s;backdrop-filter:blur(10px)}
+  .toast{position:absolute;left:50%;bottom:92px;z-index:80;transform:translate(-50%,14px);opacity:0;pointer-events:none;max-width:calc(100% - 40px);padding:11px 17px;border-radius:999px;background:rgba(28,26,23,.94);color:#fff;font-size:12.5px;font-weight:600;white-space:nowrap;transition:.2s;backdrop-filter:blur(10px)}
   .toast.on{opacity:1;transform:translate(-50%,0)}
-  .note{margin:13px auto 0;max-width:416px;text-align:center;font-size:12px;line-height:1.5;font-weight:600;color:rgba(20,22,18,.5);word-break:keep-all}
-  @media(max-width:460px){body{padding:0;background:var(--bg)}.wrap{width:100%}.phone{height:100vh;min-height:100vh;border-radius:0;border:0;box-shadow:none}.phone::before,.note{display:none}.head{padding-top:26px}}
+  .note{margin:13px auto 0;max-width:416px;text-align:center;font-size:12px;line-height:1.5;font-weight:560;color:rgba(70,55,30,.5);word-break:keep-all}
+  @media(max-width:460px){body{padding:0;background:var(--paper)}.wrap{width:100%}.phone{height:100vh;min-height:100vh;border-radius:0;border:0;box-shadow:none}.phone::before,.note{display:none}.head{padding-top:30px}}
 </style>
 </head>
 <body>
 <div class="wrap">
   <section class="phone"><div id="app"></div><div class="toast" id="toast"></div></section>
-  <p class="note">localStorage 저장 · 끼우 화면에서 스와이프(또는 휠)하면 입력 슬롯을 기준으로 리스트가 흐르며 끼울 자리가 바뀝니다.</p>
+  <p class="note">localStorage 저장 · 끼우 화면에서 스와이프(또는 휠)하면 입력 슬롯 기준으로 리스트가 흐르며 끼울 자리가 바뀝니다.</p>
 </div>
 <script>
-const KEY="kkiu.todo.v5", CARD_H=58, UNIT=67, GAP=84;
+const KEY="kkiu.todo.v6", CARD_H=60, UNIT=70, GAP=92;
 const app=document.getElementById("app"), toastEl=document.getElementById("toast");
 const I={
  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
- plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
+ plus:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>',
  arrow:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
  starO:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.7 1-5.9L3.5 9.7l5.9-.9z"/></svg>',
  starF:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.2 1 5.9L12 17l-5.2 2.7 1-5.9L3.5 9.7l5.9-.9z"/></svg>',
  grip:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg>',
  chev:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l4-4 4 4M8 15l4 4 4-4"/></svg>',
- home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>',
- done:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12l2.3 2.3 4.7-5"/></svg>',
- search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-3.5-3.5"/></svg>',
- more:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>'
+ home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>',
+ done:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 12l2.3 2.3 4.7-5"/></svg>',
+ search:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-3.5-3.5"/></svg>',
+ more:'<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>'
 };
 const uid=()=>crypto?.randomUUID?crypto.randomUUID():"id"+Date.now()+Math.random().toString(16).slice(2);
 const now=()=>new Date().toISOString();
@@ -162,7 +148,6 @@ const SEED=["프로젝트 킥오프 안건 정리","디자인 시스템 컬러 �
  .map((title,i)=>({id:uid(),title,favorite:i===0,done:false,order:i,restoreIndex:i,createdAt:now(),completedAt:null}));
 
 let state=load(), selecting=false, selected=new Set(), dragId=null, pressTimer=null;
-/* queue gesture state */
 let qOffset=0,qTT=0,qN=0,qCards=[],qMax=0,qPrevII=null,qtrackEl=null;
 let dragging=false,lastY=0,lastT=0,vel=0,moved=0,raf=null,wheelT=null,didScroll=false,pressId=null;
 
@@ -176,11 +161,10 @@ function reindex(){active().forEach((t,i)=>t.order=i)}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
 function escRe(s){return String(s).replace(/[.*+?^${}()|[\]\\]/g,"\\$&")}
 function hl(t,q){const s=esc(t);return q.trim()?s.replace(new RegExp("("+escRe(q.trim())+")","gi"),"<mark>$1</mark>"):s}
-function fmt(iso){if(!iso)return"";const d=new Date(iso);return(d.getMonth()+1)+"."+d.getDate()+" "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
+function fmt(iso){if(!iso)return"";const d=new Date(iso);return(d.getMonth()+1)+"월 "+d.getDate()+"일 "+String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0")}
 function vibe(p){navigator.vibrate&&navigator.vibrate(p)}
 function toast(m){toastEl.textContent=m;toastEl.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>toastEl.classList.remove("on"),1400)}
 
-/* actions */
 function addTask(v){v=v.trim();if(!v){toast("할 일을 입력해 주세요");return}
  reindex();const n=active().length;const at=clamp(state.insertIndex,0,n);
  state.tasks.forEach(t=>{if(!t.done&&t.order>=at)t.order++});
@@ -191,7 +175,7 @@ function addTask(v){v=v.trim();if(!v){toast("할 일을 입력해 주세요");re
  vibe([10,16,10]);toast((at+1)+"번째 자리에 끼웠어요")}
 function complete(id){reindex();const t=state.tasks.find(x=>x.id===id);if(!t||t.done)return;
  t.restoreIndex=active().findIndex(x=>x.id===id);t.done=true;t.completedAt=now();reindex();
- state.insertIndex=clamp(state.insertIndex,0,active().length);save();homeRefresh();vibe(14);toast("완료됨으로 옮겼어요")}
+ state.insertIndex=clamp(state.insertIndex,0,active().length);save();homeRefresh();vibe(14);toast("완료했어요")}
 function restore(id){reindex();const t=state.tasks.find(x=>x.id===id);if(!t||!t.done)return;
  const at=clamp(t.restoreIndex??active().length,0,active().length);
  state.tasks.forEach(x=>{if(!x.done&&x.order>=at)x.order++});t.done=false;t.order=at;t.completedAt=null;reindex();
@@ -212,34 +196,30 @@ function importJson(){const ta=document.getElementById("io");if(!ta)return;
   reindex();state.tab="home";save();render();toast("가져오기 완료")}catch{toast("JSON 형식이 올바르지 않아요")}}
 function resetAll(){if(!confirm("모든 데이터를 삭제하고 초기화할까요?"))return;localStorage.removeItem(KEY);state={tasks:SEED.map(t=>({...t,id:uid()})),tab:"home",insertIndex:3,search:""};save();render();toast("초기화했어요")}
 
-/* markup */
 function headHtml(){const a=active().length,d=completed().length;
- const sub=state.tab==="home"?"위에 있을수록 먼저 할 일. 스와이프로 끼울 자리를 정하세요."
-  :state.tab==="done"?"체크를 해제하면 원래 순번 자리로 돌아갑니다."
-  :state.tab==="search"?"미완료를 먼저, 완료를 다음에 보여줍니다.":"로컬 데이터 백업·관리.";
- return `<div class="head"><div class="head-top"><div class="brand"><div><p class="kick">MAKE YOUR QUEUE</p><h1 class="ttl">끼우<em> 투두</em></h1></div></div>
-  <span class="chip"><span class="d"></span>${a} · 완료 ${d}</span></div><p class="head-sub">${esc(sub)}</p></div>`}
-function navHtml(){const a=active().length,d=completed().length;
- const it=(id,ic,l,b)=>`<button class="nb ${state.tab===id?"on":""}" data-tab="${id}">${b?`<span class="nbg">${b}</span>`:""}${ic}<span>${l}</span></button>`;
- return `<nav class="nav">${it("home",I.home,"끼우",a)}${it("done",I.done,"완료됨",d)}${it("search",I.search,"찾기",0)}${it("more",I.more,"더보기",0)}</nav>`}
+ const map={home:["끼우",`${a}개의 할 일 · 완료 ${d}`],done:["완료됨",`완료한 일 ${d}개`],search:["찾기","제목으로 바로 검색"],more:["더보기","설정과 데이터 백업"]};
+ const[t,s]=map[state.tab]||map.home;
+ return `<div class="head"><h1 class="ttl">${t}</h1><p class="head-sub">${esc(s)}</p></div>`}
+function navHtml(){const it=(id,ic,l)=>`<button class="nb ${state.tab===id?"on":""}" data-tab="${id}">${ic}<span>${l}</span></button>`;
+ return `<nav class="nav">${it("home",I.home,"끼우")}${it("done",I.done,"완료됨")}${it("search",I.search,"찾기")}${it("more",I.more,"더보기")}</nav>`}
 function cardHtml(t,idx,o={}){
  const top=!t.done&&idx<3?`t${idx+1}`:"";
  const lead=o.select?`<button class="selbox ${selected.has(t.id)?"on":""}" data-act="sel" data-id="${t.id}">${I.check}</button>`
   :`<button class="ck ${t.done?"on":""}" data-act="${t.done?"restore":"complete"}" data-id="${t.id}">${t.done?I.check:""}</button>`;
- const sub=t.done?`<div class="sub">완료 · ${fmt(t.completedAt)}</div>`:(t.favorite?`<div class="sub">★ 강조</div>`:"");
- const acts=o.select?"":`<span class="rk">#${idx+1}</span><button class="ico fav ${t.favorite?"on":""}" data-act="fav" data-id="${t.id}">${t.favorite?I.starF:I.starO}</button>${t.done?"":`<button class="ico grip" data-act="grip" data-id="${t.id}" draggable="true">${I.grip}</button>`}`;
+ const dot=(!t.done&&idx===0)?'<span class="dot"></span>':'';
+ const sub=t.done?`<div class="sub">${fmt(t.completedAt)} 완료</div>`:"";
+ const acts=o.select?"":`<button class="ico fav ${t.favorite?"on":""}" data-act="fav" data-id="${t.id}">${t.favorite?I.starF:I.starO}</button>${t.done?"":`<button class="ico grip" data-act="grip" data-id="${t.id}" draggable="true">${I.grip}</button>`}`;
  return `<article class="card ${top} ${t.done?"done":""} ${o.select&&selected.has(t.id)?"sel-on":""}" data-id="${t.id}">
-  ${lead}<div class="mid"><p class="t-title" data-act="title" data-id="${t.id}">${o.q?hl(t.title,o.q):esc(t.title)}</p>${sub}</div>
+  ${lead}<div class="mid"><div class="trow">${dot}<p class="t-title" data-act="title" data-id="${t.id}">${o.q?hl(t.title,o.q):esc(t.title)}</p></div>${sub}</div>
   <div class="acts">${acts}</div></article>`}
 function slotHtml(){const n=active().length,at=clamp(state.insertIndex,0,n);
- return `<div class="slotwrap" id="slotwrap"><div class="sguide"></div><form class="slot" id="addForm">
+ return `<div class="slotwrap" id="slotwrap"><form class="slot" id="addForm">
   <div class="sbadge">${I.plus}</div>
-  <div class="sbody"><input class="si" id="si" autocomplete="off" placeholder="${at+1}번째 자리에 입력"/>
-   <div class="srow"><span class="spill"><b id="sposN">${at+1}</b>번째</span><span class="schev">${I.chev} 스와이프로 이동</span></div></div>
+  <div class="sbody"><input class="si" id="si" autocomplete="off" placeholder="새 할 일"/>
+   <div class="snote"><b id="sposN">${at+1}</b>번째 자리에 끼워요 · 스와이프로 이동</div></div>
   <button class="save" type="submit">${I.arrow}</button></form></div>`}
 function selBarHtml(){return `<div class="selbar"><b>${selected.size}개 선택됨</b><div class="sb-acts"><button class="sb-btn" data-act="sel-cancel">취소</button><button class="sb-btn del" data-act="sel-delete">삭제</button></div></div>`}
 
-/* home */
 function buildHome(){
  cancelAnimationFrame(raf);
  if(selecting){const l=active();
@@ -248,18 +228,16 @@ function buildHome(){
  reindex();const l=active();
  app.innerHTML=`${headHtml()}<div class="stage" id="stage">
    <div class="qvp" id="qvp"><div class="qtrack" id="qtrack">${l.map((t,i)=>cardHtml(t,i)).join("")}</div></div>
-   <div class="qfade t"></div><div class="qfade b"></div>
-   ${slotHtml()}
+   <div class="qfade t"></div><div class="qfade b"></div>${slotHtml()}
   </div>${navHtml()}`;
  initQueue();wireCards();
 }
 function initQueue(){
  const stage=document.getElementById("stage"), qvp=document.getElementById("qvp");
  qtrackEl=document.getElementById("qtrack");
- const H=stage.clientHeight, line=Math.round(H*0.47);
+ const H=stage.clientHeight, line=Math.round(H*0.46);
  qTT=line-GAP/2;
- const slotTop=qTT+(GAP-UNIT+CARD_H)/2;
- document.getElementById("slotwrap").style.top=slotTop+"px";
+ document.getElementById("slotwrap").style.top=(qTT+(GAP-UNIT+CARD_H)/2)+"px";
  qCards=[...qtrackEl.querySelectorAll(".card")];
  qN=active().length; qMax=qN*UNIT; qPrevII=null;
  qOffset=clamp(state.insertIndex*UNIT,0,qMax);
@@ -277,55 +255,33 @@ function apply(){
  if(ii!==qPrevII){
   qCards.forEach((el,i)=>{el.style.transform=`translateY(${i>=ii?GAP:0}px)`});
   const pn=document.getElementById("sposN");if(pn)pn.textContent=ii+1;
-  const si=document.getElementById("si");if(si&&document.activeElement!==si)si.placeholder=(ii+1)+"번째 자리에 입력";
   if(qPrevII!==null)vibe(6);
   qPrevII=ii;state.insertIndex=ii;
  }
 }
-function onDown(e){
- if(e.target.closest(".grip"))return;
- cancelAnimationFrame(raf);
+function onDown(e){if(e.target.closest(".grip"))return;cancelAnimationFrame(raf);
  dragging=true;moved=0;didScroll=false;lastY=e.clientY;lastT=performance.now();vel=0;
  pressId=e.target.closest(".card")?.dataset.id||null;
  pressTimer=setTimeout(()=>{if(moved<8)enterSelect(pressId)},460);
- try{e.target.setPointerCapture?.(e.pointerId)}catch{}
-}
-function onMove(e){
- if(!dragging)return;
- const y=e.clientY, dy=lastY-y; lastY=y;
- const t=performance.now(), dt=Math.max(8,t-lastT); lastT=t;
- moved+=Math.abs(dy);
+ try{e.target.setPointerCapture?.(e.pointerId)}catch{}}
+function onMove(e){if(!dragging)return;const y=e.clientY,dy=lastY-y;lastY=y;
+ const t=performance.now(),dt=Math.max(8,t-lastT);lastT=t;moved+=Math.abs(dy);
  if(moved>8){clearTimeout(pressTimer);didScroll=true}
- qOffset=clamp(qOffset+dy,0,qMax); vel=dy/dt; apply();
-}
-function onUp(){
- if(!dragging)return; dragging=false; clearTimeout(pressTimer);
- if(moved>8) momentum(); else save();
-}
-function momentum(){
- cancelAnimationFrame(raf); let last=performance.now();
- (function tick(t){const dt=Math.min(34,t-last);last=t;
-  qOffset=clamp(qOffset+vel*dt,0,qMax); vel*=Math.pow(0.94,dt/16); apply();
-  if(Math.abs(vel)>0.015 && qOffset>0 && qOffset<qMax) raf=requestAnimationFrame(tick); else snap();
- })(last);
-}
-function snap(){
- cancelAnimationFrame(raf);
- const target=clamp(Math.round(qOffset/UNIT)*UNIT,0,qMax), start=qOffset, t0=performance.now(), dur=200;
- (function st(t){const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
-  qOffset=start+(target-start)*e; apply();
-  if(k<1)raf=requestAnimationFrame(st); else {qOffset=target; apply(); save()}
- })(t0);
-}
-function onWheel(e){e.preventDefault();cancelAnimationFrame(raf);
- qOffset=clamp(qOffset+e.deltaY,0,qMax);apply();clearTimeout(wheelT);wheelT=setTimeout(snap,110)}
-function homeRefresh(){if(state.tab!=="home")return;buildHome()}
+ qOffset=clamp(qOffset+dy,0,qMax);vel=dy/dt;apply()}
+function onUp(){if(!dragging)return;dragging=false;clearTimeout(pressTimer);if(moved>8)momentum();else save()}
+function momentum(){cancelAnimationFrame(raf);let last=performance.now();
+ (function tick(t){const dt=Math.min(34,t-last);last=t;qOffset=clamp(qOffset+vel*dt,0,qMax);vel*=Math.pow(0.94,dt/16);apply();
+  if(Math.abs(vel)>0.015&&qOffset>0&&qOffset<qMax)raf=requestAnimationFrame(tick);else snap()})(last)}
+function snap(){cancelAnimationFrame(raf);const target=clamp(Math.round(qOffset/UNIT)*UNIT,0,qMax),start=qOffset,t0=performance.now(),dur=200;
+ (function st(t){const k=Math.min(1,(t-t0)/dur),e=1-Math.pow(1-k,3);qOffset=start+(target-start)*e;apply();
+  if(k<1)raf=requestAnimationFrame(st);else{qOffset=target;apply();save()}})(t0)}
+function onWheel(e){e.preventDefault();cancelAnimationFrame(raf);qOffset=clamp(qOffset+e.deltaY,0,qMax);apply();clearTimeout(wheelT);wheelT=setTimeout(snap,110)}
+function homeRefresh(){if(state.tab==="home")buildHome()}
 
-/* other views */
-function doneView(){const t=completed();return `<div class="scroller"><div class="list">${t.length?t.map((x,i)=>cardHtml(x,i)).join(""):`<div class="empty"><div class="empty-c"><h3>완료한 할 일이 없어요</h3><p>끼우 화면에서 체크하면 이곳에 쌓입니다. 해제하면 원래 순번 근처로 돌아가요.</p></div></div>`}</div></div>`}
-function searchResults(q,res){if(!q)return `<div class="empty"><div class="empty-c"><h3>무엇을 찾을까요?</h3><p>제목으로 바로 검색합니다. 완료된 할 일도 함께 찾아요.</p></div></div>`;
+function doneView(){const t=completed();return `<div class="scroller"><div class="list">${t.length?t.map((x,i)=>cardHtml(x,i)).join(""):`<div class="empty"><div class="empty-c"><h3>아직 완료한 일이 없어요</h3><p>끼우 화면에서 체크하면 이곳에 쌓입니다. 해제하면 원래 순번 근처로 돌아가요.</p></div></div>`}</div></div>`}
+function searchResults(q,res){if(!q)return `<div class="empty"><div class="empty-c"><h3>무엇을 찾을까요?</h3><p>제목으로 바로 검색합니다. 완료된 일도 함께 찾아요.</p></div></div>`;
  if(!res.length)return `<div class="empty"><div class="empty-c"><h3>결과가 없어요</h3><p>“${esc(q)}”와 일치하는 할 일이 없습니다.</p></div></div>`;
- return `<div class="pcard" style="padding:11px 14px"><p style="margin:0;color:var(--accent-ink);font-weight:800">${res.length}개 결과</p></div>`+res.map((t,i)=>cardHtml(t,i,{q})).join("")}
+ return res.map((t,i)=>cardHtml(t,i,{q})).join("")}
 function searchView(){const q=state.search.trim();const all=[...active(),...completed()];const res=q?all.filter(t=>t.title.toLowerCase().includes(q.toLowerCase())):[];
  return `<div class="scroller"><div class="list"><input class="field" id="sq" value="${esc(state.search)}" placeholder="검색어 입력" autocomplete="off"/><div id="sres" class="list">${searchResults(q,res)}</div></div></div>`}
 function moreView(){return `<div class="scroller"><div class="list">
@@ -345,8 +301,6 @@ function render(){
   sq.addEventListener("input",e=>{state.search=e.target.value;const q=state.search.trim();const all=[...active(),...completed()];const res=q?all.filter(t=>t.title.toLowerCase().includes(q.toLowerCase())):[];document.getElementById("sres").innerHTML=searchResults(q,res);wireCards()})}
  wireCards();
 }
-
-/* wiring */
 function wireCards(){
  document.querySelectorAll("[data-act='grip']").forEach(g=>{const card=g.closest(".card");
   g.addEventListener("dragstart",()=>{dragId=card.dataset.id;card.classList.add("drag")});
@@ -358,8 +312,7 @@ function wireCards(){
 }
 app.addEventListener("click",e=>{
  const tab=e.target.closest("[data-tab]");
- if(tab){selecting=false;selected=new Set();state.tab=tab.dataset.tab;save();render();
-  if(state.tab==="search")setTimeout(()=>document.getElementById("sq")?.focus(),60);return}
+ if(tab){selecting=false;selected=new Set();state.tab=tab.dataset.tab;save();render();if(state.tab==="search")setTimeout(()=>document.getElementById("sq")?.focus(),60);return}
  const el=e.target.closest("[data-act]");if(!el)return;const act=el.dataset.act,id=el.dataset.id;
  if(act==="title"){if(selecting)toggleSelect(id);else startEdit(el,id);return}
  if(act==="sel"){toggleSelect(id);return}
