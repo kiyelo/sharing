@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>프렌즈 325 표현 트레이너</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;background:linear-gradient(160deg,#17172e,#2a1e4d 55%,#1b2340);color:#fff;min-height:100vh}
+#app{max-width:520px;margin:0 auto;padding:14px;display:flex;flex-direction:column;min-height:100vh}
+.top{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.hh{color:#fb7185;font-size:18px}.hh.off{opacity:.18}
+.pbar{flex:1;height:10px;background:rgba(255,255,255,.12);border-radius:6px;overflow:hidden}
+.pfill{height:100%;background:linear-gradient(90deg,#8b5cf6,#ec4899);transition:width .3s}
+.sxp{font-size:13px;font-weight:800;color:#fbbf24;min-width:44px;text-align:right}
+.qtype{font-size:12px;color:#a5b4fc;font-weight:700;letter-spacing:.08em;margin:2px 0 8px}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:22px 18px;text-align:center;margin-bottom:14px}
+.card.big{font-size:23px;font-weight:800}
+.card.sm{font-size:16px;font-weight:600;color:#e2e8f0;line-height:1.6}
+.blank{display:inline-block;min-width:70px;border-bottom:2px solid #8b5cf6;color:#c4b5fd;font-weight:800}
+.opt{display:block;width:100%;margin:8px 0;padding:14px 16px;border-radius:16px;background:rgba(255,255,255,.06);border:1.5px solid rgba(255,255,255,.16);color:#fff;font-size:15px;text-align:left;cursor:pointer;transition:transform .1s}
+.opt:active{transform:scale(.98)}
+.opt.ok{background:#15803d;border-color:#4ade80;animation:pop .3s}
+.opt.no{background:#b91c1c;border-color:#f87171;animation:shake .35s}
+.opt.dim{opacity:.45}
+.chips{margin:6px 0 12px;text-align:center}
+.chip{display:inline-block;margin:4px;padding:11px 14px;border-radius:14px;background:#333064;border:1px solid #6d64c9;font-size:15px;font-weight:600;cursor:pointer}
+.chip.used{opacity:.18;pointer-events:none}
+.chip.sel{background:#8b5cf6;border-color:#c4b5fd}
+.chip.done{opacity:.25;pointer-events:none;border-style:dashed}
+.chip.shake{animation:shake .35s}
+.ansline{min-height:56px;border-bottom:2px dashed rgba(255,255,255,.25);margin-bottom:6px;text-align:center;padding:4px}
+.achip{display:inline-block;margin:4px;padding:10px 13px;border-radius:14px;background:#4c1d95;border:1px solid #8b5cf6;font-size:15px;font-weight:600;cursor:pointer}
+.btn{display:block;width:100%;padding:16px;border:none;border-radius:18px;background:linear-gradient(90deg,#8b5cf6,#d946ef);color:#fff;font-size:17px;font-weight:800;cursor:pointer;margin-top:14px}
+.btn:disabled{opacity:.35}
+.btn.ghost{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);margin-top:10px}
+.fb{position:fixed;left:0;right:0;bottom:0;padding:18px 16px 26px;font-weight:700;font-size:15px;text-align:center;animation:up .25s;z-index:9}
+.fb.ok{background:#14532d;color:#bbf7d0}.fb.no{background:#7f1d1d;color:#fecaca}
+.match{display:flex;gap:10px}.mcol{flex:1}
+.mcol .chip{display:block;margin:6px 0;text-align:center}
+h1{font-size:22px;text-align:center;margin:18px 0 4px}
+.sub2{text-align:center;color:#a5b4fc;font-size:13px;margin-bottom:16px}
+.stats{display:flex;gap:8px;margin-bottom:14px}
+.st{flex:1;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);border-radius:16px;padding:12px 6px;text-align:center}
+.st b{display:block;font-size:19px}.st span{font-size:11px;color:#a5b4fc}
+.lvbar{height:12px;background:rgba(255,255,255,.12);border-radius:7px;overflow:hidden;margin:4px 0 14px}
+.lvfill{height:100%;background:linear-gradient(90deg,#fbbf24,#f97316)}
+.lvrow{display:flex;justify-content:space-between;font-size:12px;color:#a5b4fc}
+.weak{background:rgba(255,255,255,.05);border-radius:14px;padding:10px 14px;font-size:13px;margin-bottom:6px;color:#e2e8f0;line-height:1.6}
+.list{margin:10px 0}.li{background:rgba(255,255,255,.05);border-radius:12px;padding:10px 12px;margin:6px 0;font-size:14px;line-height:1.55}
+.li b{color:#c4b5fd}
+.big-emoji{font-size:56px;text-align:center;margin:30px 0 10px;animation:pop .4s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+var E=[
+{p:"if worst comes to worst",k:"정 안 되면, 최악의 경우엔",s:"Besides, if worst comes to worst, I'll be your boyfriend.",t:"게다가 정 안 되면 내가 네 남자친구 해줄게.",bl:1,bd:1},
+{p:"lost track of",k:"~의 소식·행방을 놓쳤다",s:"I guess we lost track of everybody after high school.",t:"고등학교 이후로는 다들 소식이 끊긴 것 같아요.",bl:1,bd:1},
+{p:"It was either",k:"선택지는 ~ 아니면 …뿐이었다",s:"It was either this or Strip Bag Of Old Knitting Stuff.",t:"이거 아니면 '벗는 뜨개질 가방 게임'뿐이었어.",bl:1,bd:0},
+{p:"claimed",k:"(미심쩍게) ~라고 주장했다",s:"She claimed she had to go out of town suddenly.",t:"갑자기 시외로 나가야 한다고 둘러대더라.",bl:1,bd:1},
+{p:"There's gotta be",k:"분명 ~가 있을 거야",s:"There's gotta be something in her house that tells me where my Father is.",t:"그 집에 아빠의 행방을 알려줄 뭔가가 분명 있을 거야.",bl:1,bd:0},
+{p:"easy for me to",k:"내가 ~하기에 쉬운",s:"Do you think it's easy for me to see you with somebody else?",t:"네가 다른 사람과 있는 걸 보는 게 나한테 쉬운 것 같아?",bl:1,bd:0},
+{p:"not because",k:"~ 때문이 아니라",s:"Because I was mad at you, not because I stopped loving you!",t:"화가 나서 그런 거지, 사랑이 식어서가 아니야!",bl:1,bd:0},
+{p:"deserve to know",k:"알 자격이 있다",s:"I deserve to know where I came from.",t:"내가 어디서 왔는지 알 자격이 있어.",bl:1,bd:1},
+{p:"Take it from",k:"~의 말이니 믿어",s:"Take it from a guy who's never had a long term relationship.",t:"장기 연애 못 해본 사람 말이니 믿어도 돼.",bl:1,bd:0},
+{p:"let me get this straight",k:"제대로 이해했는지 정리해 보자",s:"So let me get this straight.",t:"그러니까 정리해 보자.",bl:1,bd:1},
+{p:"capable of",k:"~할 능력이 있는",s:"Is that woman capable of talking about anything else but sex?",t:"저 여자는 섹스 말고 다른 얘기는 못 해?",bl:1,bd:0},
+{p:"looked her up",k:"그 사람을 찾아봤다(검색)",s:"So I looked her up, and she lives out by the beach.",t:"그래서 찾아봤더니 바닷가 쪽에 살더라고.",bl:1,bd:0},
+{p:"Say",k:"~라고 가정해 봐",s:"Say we weren't friends, say it's a blind date.",t:"우리가 친구가 아니라고 쳐봐, 소개팅이라고 가정해 봐.",bl:0,bd:1},
+{p:"pretending like",k:"~인 척하고 있는",s:"She was pretending like she hasn't heard from him in years.",t:"몇 년째 연락 못 받은 척하고 있었어.",bl:1,bd:0},
+{p:"heard from",k:"~에게서 연락을 받았다",s:"Have you heard from him, or seen him?",t:"그 사람한테 연락 받거나 본 적 있어요?",bl:1,bd:1},
+{p:"get to",k:"~할 기회를 얻다",s:"You get to make somebody take off one item of clothing.",t:"아무나 골라 옷 하나를 벗게 할 수 있어.",bl:1,bd:0},
+{p:"let me off early",k:"나를 일찍 보내줬다",s:"My boss let me off early, so I took the train.",t:"사장님이 일찍 보내줘서 기차 타고 왔어.",bl:1,bd:1},
+{p:"I assume",k:"~인 걸로 추정해",s:"I assume the happy couple isn't up yet.",t:"그 행복한 커플은 아직 안 일어난 모양이네.",bl:1,bd:1},
+{p:"bring up",k:"(화제를) 꺼내다",s:"She happened to bring up who was behind the whole idea.",t:"개가 우연히 그 아이디어의 배후 얘기를 꺼냈어.",bl:1,bd:0},
+{p:"happened to",k:"우연히 ~했다",s:"She happened to bring up who was behind the whole idea.",t:"개가 우연히 그 아이디어의 배후 얘기를 꺼냈어.",bl:1,bd:0},
+{p:"forgive you for",k:"~ 때문에 너를 용서하다",s:"I still can't forgive you for what you did.",t:"네가 한 짓은 아직도 용서가 안 돼.",bl:1,bd:1},
+{p:"put myself through",k:"그 고생을 자처하다",s:"Do I really wanna put myself through that again?",t:"내가 정말 그 고생을 또 겪고 싶은 걸까?",bl:1,bd:1},
+{p:"moving on",k:"미련을 버리고 나아가기",s:"You're doing the smart, healthy thing and moving on.",t:"현명하고 건강한 선택을 하고 미련을 버리는 거야.",bl:1,bd:0},
+{p:"get back together",k:"다시 만나다, 재결합하다",s:"Do you wanna get back together?",t:"다시 만나고 싶은 거야?",bl:1,bd:1}
+];
+var store=null;try{store=window.localStorage}catch(e){}
+var P={xp:0,streak:0,last:"",stat:{}};
+try{var raw=store&&store.getItem("fr325app");if(raw){var o=JSON.parse(raw);for(var k in o){P[k]=o[k]}}}catch(e){}
+function save(){try{if(store)store.setItem("fr325app",JSON.stringify(P))}catch(e){}}
+function stat(i){if(!P.stat[i])P.stat[i]={w:0,c:0};return P.stat[i]}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;")}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+var app=document.getElementById("app");
+var ses=null;
+function wpick(n){var pool=[],i;for(i=0;i<E.length;i++)pool.push(i);var out=[];for(var c=0;c<n&&pool.length;c++){var ws=[],tot=0;for(i=0;i<pool.length;i++){var s=P.stat[pool[i]]||{w:0,c:0};var w=1+s.w*2-Math.min(s.c*0.3,0.7);if(w<0.3)w=0.3;ws.push(w);tot+=w}var r=Math.random()*tot,j=0;while(j<ws.length-1&&r>ws[j]){r-=ws[j];j++}out.push(pool[j]);pool.splice(j,1)}return out}
+function start(){var ids=wpick(10);var q=[];for(var i=0;i<ids.length;i++){var it=E[ids[i]];var m=[0,1];if(it.bl)m.push(2);if(it.bd)m.push(3);q.push({i:ids[i],m:m[Math.floor(Math.random()*m.length)]})}
+q.splice(5,0,{m:4,ids:ids.slice(0,4)});
+ses={q:q,i:0,hearts:3,xp:0,combo:0,maxCombo:0,right:0,wrong:0,re:{},lock:0};render()}
+function hud(){var h='<div class="top"><div>';for(var i=0;i<3;i++)h+='<span class="hh'+(i<ses.hearts?'':' off')+'">❤</span>';h+='</div><div class="pbar"><div class="pfill" style="width:'+Math.round(100*ses.i/ses.q.length)+'%"></div></div><div class="sxp">⚡'+ses.xp+'</div></div>';return h}
+function others(i,f){var pool=[];for(var j=0;j<E.length;j++){if(j!==i&&E[j][f]!==E[i][f]&&pool.indexOf(E[j][f])<0)pool.push(E[j][f])}shuffle(pool);return pool.slice(0,3)}
+function render(){ses.lock=0;window.scrollTo(0,0);if(ses.hearts<=0){fail();return}if(ses.i>=ses.q.length){finish();return}var q=ses.q[ses.i];if(q.m===4){qMatch(q);return}var it=E[q.i];
+if(q.m===0){qMC(q,it,'<div class="card big">'+esc(it.p)+'</div>',it.k,others(q.i,"k"),"뜻 고르기")}
+else if(q.m===1){qMC(q,it,'<div class="card big" style="font-size:19px">'+esc(it.k)+'</div>',it.p,others(q.i,"p"),"영어로 고르기")}
+else if(q.m===2){var sent=esc(it.s).replace(esc(it.p),'<span class="blank">______</span>');qMC(q,it,'<div class="card sm">'+sent+'</div>',it.p,others(q.i,"p"),"빈칸 채우기")}
+else{qBuild(q,it)}}
+function qMC(q,it,promptHtml,corr,dis,label){var opts=shuffle([{t:corr,ok:1},{t:dis[0],ok:0},{t:dis[1],ok:0},{t:dis[2],ok:0}]);
+var h=hud()+'<div class="qtype">'+label+'</div>'+promptHtml+'<div>';
+for(var i=0;i<opts.length;i++){h+='<button class="opt" data-ok="'+opts[i].ok+'">'+esc(opts[i].t)+'</button>'}
+h+='</div>';app.innerHTML=h;
+var els=app.querySelectorAll(".opt");
+for(var i=0;i<els.length;i++){els[i].onclick=function(){if(ses.lock)return;ses.lock=1;var ok=this.getAttribute("data-ok")==="1";
+if(ok){this.classList.add("ok");good(q)}
+else{this.classList.add("no");for(var j=0;j<els.length;j++){if(els[j].getAttribute("data-ok")==="1"){els[j].classList.add("ok")}else if(els[j]!==this){els[j].classList.add("dim")}}bad(q,it)}}}}
+function qBuild(q,it){var tk=it.s.split(" ");ses.tk=tk;ses.ans=[];
+var order=[];for(var i=0;i<tk.length;i++)order.push(i);shuffle(order);
+var h=hud()+'<div class="qtype">문장 만들기 — 탭해서 순서대로</div><div class="card sm">'+esc(it.t)+'</div><div class="ansline" id="al"></div><div class="chips" id="ch">';
+for(i=0;i<order.length;i++){h+='<span class="chip" data-i="'+order[i]+'">'+esc(tk[order[i]])+'</span>'}
+h+='</div><button class="btn" id="chk" disabled>확인</button>';
+app.innerHTML=h;
+function drawAns(){var a="";for(var i=0;i<ses.ans.length;i++){a+='<span class="achip" data-p="'+i+'">'+esc(ses.tk[ses.ans[i]])+'</span>'}document.getElementById("al").innerHTML=a;document.getElementById("chk").disabled=ses.ans.length!==ses.tk.length}
+document.getElementById("ch").onclick=function(e){var t=e.target;if(ses.lock||!t.classList.contains("chip")||t.classList.contains("used"))return;t.classList.add("used");ses.ans.push(parseInt(t.getAttribute("data-i")));drawAns()};
+document.getElementById("al").onclick=function(e){var t=e.target;if(ses.lock||!t.classList.contains("achip"))return;var p=parseInt(t.getAttribute("data-p"));var rem=ses.ans.splice(p,1)[0];var c=document.querySelector('#ch .chip[data-i="'+rem+'"]');if(c)c.classList.remove("used");drawAns()};
+document.getElementById("chk").onclick=function(){if(ses.lock)return;ses.lock=1;var mine=[];for(var i=0;i<ses.ans.length;i++)mine.push(ses.tk[ses.ans[i]]);
+if(mine.join(" ")===it.s){document.getElementById("al").style.borderColor="#4ade80";good(q)}
+else{document.getElementById("al").style.borderColor="#f87171";bad(q,{p:it.s,k:it.t})}}}
+function qMatch(q){var ids=q.ids;ses.msel=null;ses.mdone=0;
+var right=shuffle(ids.slice());
+var h=hud()+'<div class="qtype">짝 맞추기 보너스</div><div class="match"><div class="mcol">';
+for(var i=0;i<ids.length;i++){h+='<span class="chip" data-s="l" data-m="'+ids[i]+'">'+esc(E[ids[i]].p)+'</span>'}
+h+='</div><div class="mcol">';
+for(i=0;i<right.length;i++){h+='<span class="chip" data-s="r" data-m="'+right[i]+'">'+esc(E[right[i]].k)+'</span>'}
+h+='</div></div>';
+app.innerHTML=h;
+app.querySelector(".match").onclick=function(e){var t=e.target;if(!t.classList.contains("chip")||t.classList.contains("done"))return;
+if(ses.msel===t){t.classList.remove("sel");ses.msel=null;return}
+if(ses.msel&&ses.msel.getAttribute("data-s")===t.getAttribute("data-s")){ses.msel.classList.remove("sel");ses.msel=t;t.classList.add("sel");return}
+if(!ses.msel){ses.msel=t;t.classList.add("sel");return}
+var a=ses.msel,b=t;
+if(a.getAttribute("data-m")===b.getAttribute("data-m")){a.classList.remove("sel");a.classList.add("done");b.classList.add("done");ses.msel=null;ses.mdone++;
+if(ses.mdone===ids.length){ses.xp+=15;fb("<b>🎁 보너스 +15 XP</b>",1);setTimeout(function(){ses.i++;render()},850)}}
+else{a.classList.add("shake");b.classList.add("shake");ses.combo=0;setTimeout(function(){a.classList.remove("sel");a.classList.remove("shake");b.classList.remove("shake");ses.msel=null},400)}}}
+function good(q){ses.right++;ses.combo++;if(ses.combo>ses.maxCombo)ses.maxCombo=ses.combo;var add=10+Math.min((ses.combo-1)*2,10);ses.xp+=add;if(q&&q.i!==undefined)stat(q.i).c++;save();
+fb('<b>🎉 정답! +'+add+' XP</b>'+(ses.combo>1?' · 콤보 x'+ses.combo:''),1);
+setTimeout(function(){ses.i++;render()},800)}
+function bad(q,it){ses.wrong++;ses.combo=0;ses.hearts--;if(q&&q.i!==undefined){stat(q.i).w++;if(!ses.re[q.i]){ses.re[q.i]=1;ses.q.push({i:q.i,m:0})}}save();
+fb('<b>정답:</b> '+esc(it.p)+'<br><span style="opacity:.85">'+esc(it.k)+'</span>',0);
+setTimeout(function(){ses.i++;render()},1550)}
+function fb(html,ok){var d=document.createElement("div");d.className="fb "+(ok?"ok":"no");d.innerHTML=html;document.body.appendChild(d);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d)},ok?750:1480)}
+function lvHtml(){var lv=Math.floor(P.xp/120)+1;var pct=Math.round((P.xp%120)/1.2);return '<div class="lvrow"><span>Lv.'+lv+'</span><span>'+(P.xp%120)+'/120 XP</span></div><div class="lvbar"><div class="lvfill" style="width:'+pct+'%"></div></div>'}
+function finish(){P.xp+=ses.xp;var d=new Date();function ds(x){return x.getFullYear()+"-"+(x.getMonth()+1)+"-"+x.getDate()}var td=ds(d);
+if(P.last!==td){var y=new Date(d.getTime()-864e5);P.streak=(P.last===ds(y))?P.streak+1:1;P.last=td}
+save();var tot=ses.right+ses.wrong;var acc=tot?Math.round(100*ses.right/tot):100;
+app.innerHTML='<div class="big-emoji">🏆</div><h1>레슨 완료!</h1><div class="sub2">오늘도 한 걸음 더!</div><div class="stats"><div class="st"><b>⚡'+ses.xp+'</b><span>획득 XP</span></div><div class="st"><b>'+acc+'%</b><span>정확도</span></div><div class="st"><b>x'+ses.maxCombo+'</b><span>최대 콤보</span></div><div class="st"><b>🔥'+P.streak+'</b><span>연속일</span></div></div>'+lvHtml()+'<button class="btn" onclick="start()">한 번 더! ▶</button><button class="btn ghost" onclick="home()">홈으로</button>'}
+function fail(){P.xp+=ses.xp;save();
+app.innerHTML='<div class="big-emoji">💔</div><h1>하트가 다 떨어졌어요</h1><div class="sub2">그래도 ⚡'+ses.xp+' XP는 챙겼어요. 틀린 표현은 다음 레슨에 다시 나와요!</div>'+lvHtml()+'<button class="btn" onclick="start()">다시 도전 🔥</button><button class="btn ghost" onclick="home()">홈으로</button>'}
+function home(){var weak=[];for(var i=0;i<E.length;i++){var s=P.stat[i];if(s&&s.w>0)weak.push({i:i,w:s.w})}weak.sort(function(a,b){return b.w-a.w});
+var wk="";if(weak.length){wk='<div class="weak">🎯 <b>집중 복습:</b> ';for(var j=0;j<Math.min(3,weak.length);j++){wk+=(j?", ":"")+esc(E[weak[j].i].p)}wk+='</div>'}
+app.innerHTML='<h1>🎬 프렌즈 325 표현 트레이너</h1><div class="sub2">The One At The Beach · 핵심 표현 '+E.length+'개 · 탭만으로 학습</div><div class="stats"><div class="st"><b>Lv.'+(Math.floor(P.xp/120)+1)+'</b><span>레벨</span></div><div class="st"><b>⚡'+P.xp+'</b><span>누적 XP</span></div><div class="st"><b>🔥'+P.streak+'</b><span>연속일</span></div></div>'+lvHtml()+wk+'<button class="btn" onclick="start()">레슨 시작 ▶</button><button class="btn ghost" onclick="browse()">📚 표현 훑어보기</button>';window.scrollTo(0,0)}
+function browse(){var h='<h1>📚 표현 목록</h1><div class="sub2">레슨 전 가벼게 훑어보세요</div><div class="list">';
+for(var i=0;i<E.length;i++){h+='<div class="li"><b>'+esc(E[i].p)+'</b> — '+esc(E[i].k)+'<br><span style="opacity:.7">'+esc(E[i].s)+'</span></div>'}
+h+='</div><button class="btn" onclick="home()">돌아가기</button>';app.innerHTML=h;window.scrollTo(0,0)}
+home();
+</script>
+</body>
+</html>
