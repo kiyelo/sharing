@@ -25,7 +25,8 @@
     overflow:hidden;border-radius:46px;background:var(--paper);border:1px solid rgba(70,55,30,.06);box-shadow:var(--sh-pop)}
   .phone::before{content:"";position:absolute;z-index:60;top:12px;left:50%;width:104px;height:28px;transform:translateX(-50%);border-radius:999px;background:rgba(70,55,30,.05)}
   #app{flex:1;display:flex;flex-direction:column;min-height:0}
-  #view{flex:1;min-height:0;position:relative;display:flex;flex-direction:column;will-change:transform}
+  #viewport{flex:1;min-height:0;position:relative;overflow:hidden}
+  .vpage{position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;will-change:transform;background:var(--paper)}
 
   .head{flex:none;padding:46px 24px 12px}
   .ttl{margin:0;font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.05}
@@ -33,6 +34,7 @@
 
   .stage{flex:1;min-height:0;position:relative;overflow:hidden}
   .stage.q{touch-action:none}
+  .stage.q.adding .ico.grip{opacity:.28;pointer-events:none;transition:opacity .18s}
   .qvp{position:absolute;inset:0;overflow:hidden}
   .qtrack{position:absolute;left:0;right:0;top:0;padding:0 18px;will-change:transform}
   .qfade{position:absolute;left:0;right:0;z-index:6;pointer-events:none}
@@ -125,7 +127,7 @@
 
   .nav{position:absolute;left:16px;right:16px;bottom:calc(14px + var(--safe));z-index:50;height:var(--nav-h);display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:8px;border-radius:22px;background:rgba(251,248,242,.86);box-shadow:0 14px 36px rgba(60,45,25,.16);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.55)}
   #app.sel-mode .nav{display:none}
-  .nav-ind{position:absolute;top:8px;height:calc(var(--nav-h) - 16px);left:8px;width:0;border-radius:16px;background:var(--accent-soft);z-index:0;transition:left .3s cubic-bezier(.2,.7,.3,1),width .3s cubic-bezier(.2,.7,.3,1)}
+  .nav-ind{position:absolute;top:8px;height:calc(var(--nav-h) - 16px);left:8px;width:0;border-radius:16px;background:var(--accent-soft);z-index:0;transition:left .24s cubic-bezier(.22,.72,.25,1),width .24s cubic-bezier(.22,.72,.25,1)}
   .nb{position:relative;z-index:1;border-radius:16px;color:var(--faint);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:700;letter-spacing:-.01em;transition:color .2s}
   .nb svg{width:21px;height:21px;transition:transform .2s}
   .nb:active{transform:scale(.93)}
@@ -144,6 +146,7 @@
 </div>
 <script>
 const KEY="kkiu.todo", CARD_H=62, UNIT=72, GAP=80, LINE=0.70, TABS=["home","done","search","more"];
+const PAGE_DUR=240, PAGE_EASE="cubic-bezier(.22,.72,.25,1)", IND_DELAY=50;
 const app=document.getElementById("app"), toastEl=document.getElementById("toast");
 const I={
  check:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg>',
@@ -168,7 +171,8 @@ let viewEl=null, switching=false;
 let qOffset=0,qTT=0,qN=0,qCards=[],qMax=0,qPrevII=null,qtrackEl=null,stageEl=null,slotCenter=0;
 let dragging=false,axis=null,captured=false,gx=0,gy=0,startY=0,panBase=0,lastY=0,lastT=0,vel=0,moved=0,viewW=0;
 let raf=null,wheelT=null,didScroll=false,pressTimer=null,pressId=null,slotOpen=false;
-let reActive=[],reFrom=0,reTo=0,reEl=null,reGrip=null,reStageTop=0,reTrackTop=0,reMove=null,reUp=null;
+let reActive=[],reFrom=0,reTo=0,reEl=null,reStageTop=0,reTrackTop=0;
+let gripArmTimer=null,gripArmId=null,gripDownEvent=null,gripArmed=false;
 
 function load(){try{const r=localStorage.getItem(KEY);if(!r)return{tasks:SEED,tab:"home",insertIndex:3};
  const p=JSON.parse(r);return{tasks:Array.isArray(p.tasks)&&p.tasks.length?p.tasks:SEED,tab:p.tab||"home",insertIndex:Number.isInteger(p.insertIndex)?p.insertIndex:0}}
@@ -243,7 +247,7 @@ function buildHome(){
  viewEl.innerHTML=`${headHtml()}<div class="stage q" id="stage">
    <div class="qvp"><div class="qtrack" id="qtrack">${l.map((t,i)=>cardHtml(t,i,{rank:true})).join("")}</div></div>
    <div class="qfade t"></div><div class="qfade b"></div>${slotHtml()}</div>`;
- initQueue();wireCards();setNavActive()
+ initQueue();setNavActive()
 }
 function renderSelect(){const l=active();const allSel=l.length&&l.every(t=>selected.has(t.id));
  viewEl.innerHTML=`<div class="selhead"><button class="selx" data-act="sel-cancel">${I.x}</button>
@@ -252,7 +256,6 @@ function renderSelect(){const l=active();const allSel=l.length&&l.every(t=>selec
   <div class="stage"><div class="scroller selscroll"><div class="list">${l.map(t=>cardHtml(t,0,{select:true})).join("")}</div></div></div>
   <div class="seldock"><button class="dbtn" data-act="sel-cancel">취소</button>
    <button class="dbtn del" data-act="sel-delete" ${selected.size?"":"disabled"}>삭제${selected.size?" · "+selected.size:""}</button></div>`;
- wireCards()
 }
 function renderView(){
  slotOpen=false;app.classList.toggle("sel-mode",selecting);
@@ -261,8 +264,7 @@ function renderView(){
  const body=state.tab==="done"?doneView():state.tab==="search"?searchView():moreView();
  viewEl.innerHTML=`${headHtml()}<div class="stage">${body}</div>`;
  if(state.tab==="search"){const sq=document.getElementById("sq");
-  sq.addEventListener("input",e=>{state.search=e.target.value;const q=state.search.trim();const all=[...active(),...completed()];const res=q?all.filter(t=>t.title.toLowerCase().includes(q.toLowerCase())):[];document.getElementById("sres").innerHTML=searchResults(q,res);wireCards()})}
- wireCards()
+  sq.addEventListener("input",e=>{state.search=e.target.value;const q=state.search.trim();const all=[...active(),...completed()];const res=q?all.filter(t=>t.title.toLowerCase().includes(q.toLowerCase())):[];document.getElementById("sres").innerHTML=searchResults(q,res)})}
 }
 function initQueue(){
  stageEl=document.getElementById("stage");qtrackEl=document.getElementById("qtrack");
@@ -284,19 +286,26 @@ function apply(){const ii=clamp(Math.round(qOffset/UNIT),0,qN);
 /* ── 통합 제스처: 세로=끼우기 위치(home) / 가로=탭 이동 ── */
 function gDown(e){
  if(switching||selecting)return;
- if(e.target.closest(".grip"))return;
  if(slotOpen&&e.target.closest(".ibar"))return;
  if(slotOpen)e.preventDefault();
- axis=null;captured=false;dragging=true;moved=0;didScroll=false;gx=e.clientX;gy=e.clientY;
+ axis=null;captured=false;dragging=true;moved=0;didScroll=false;gripArmed=false;gx=e.clientX;gy=e.clientY;
  startY=e.clientY;panBase=qOffset;lastY=e.clientY;lastT=performance.now();vel=0;
  pressId=e.target.closest(".card")?.dataset.id||null;
- if(state.tab==="home"&&!slotOpen&&!e.target.closest(".ins"))pressTimer=setTimeout(()=>{if(moved<8)enterSelect(pressId)},460);
+ clearTimeout(pressTimer);clearTimeout(gripArmTimer);
+ const gripEl=e.target.closest(".grip");
+ if(gripEl&&state.tab==="home"&&!slotOpen&&!selecting){
+  gripArmId=gripEl.dataset.id;gripDownEvent=e;
+  gripArmTimer=setTimeout(()=>{if(moved<8&&dragging){gripArmed=true;didScroll=true;vibe(14);startReorder(gripArmId,gripDownEvent)}},170);
+ } else if(state.tab==="home"&&!slotOpen&&!e.target.closest(".ins")){
+  pressTimer=setTimeout(()=>{if(moved<8)enterSelect(pressId)},460);
+ }
  cancelAnimationFrame(raf)
 }
 function gMove(e){
+ if(gripArmed){e.preventDefault();layoutReorder(e.clientY);return}
  if(!dragging)return;const dx=e.clientX-gx, dy=e.clientY-gy;moved=Math.max(moved,Math.abs(dx),Math.abs(dy));
  if(!axis){
-  if(Math.abs(dx)<9&&Math.abs(dy)<9)return;clearTimeout(pressTimer);
+  if(Math.abs(dx)<9&&Math.abs(dy)<9)return;clearTimeout(pressTimer);clearTimeout(gripArmTimer);
   if(Math.abs(dx)>Math.abs(dy)){ if(slotOpen){axis="dead";return} axis="h";viewW=viewEl.clientWidth;try{viewEl.setPointerCapture(e.pointerId)}catch{};didScroll=true }
   else{ if(state.tab==="home"){axis="v";try{viewEl.setPointerCapture(e.pointerId)}catch{};didScroll=true} else {axis="native";dragging=false;return} }
  }
@@ -307,6 +316,8 @@ function gMove(e){
   vel=(lastY-e.clientY)/dt;lastY=e.clientY;lastT=tt;qOffset=clamp(panBase+total,0,qMax);apply()}
 }
 function gUp(e){
+ clearTimeout(gripArmTimer);
+ if(gripArmed){finishReorder(e);gripArmed=false;dragging=false;axis=null;clearTimeout(pressTimer);return}
  if(!dragging){axis=null;return}
  const a=axis;dragging=false;try{viewEl.releasePointerCapture(e.pointerId)}catch{}clearTimeout(pressTimer);
  if(a==="h"){const dx=e.clientX-gx;const idx=TABS.indexOf(state.tab);let dir=0;
@@ -317,12 +328,32 @@ function gUp(e){
 }
 function snapBack(){viewEl.style.transition="transform .2s ease";viewEl.style.transform="translateX(0)";setTimeout(()=>viewEl.style.transition="",200)}
 function goTab(tab){if(switching||selecting||tab===state.tab)return;const dir=TABS.indexOf(tab)>TABS.indexOf(state.tab)?1:-1;commitTab(tab,dir)}
-function commitTab(tab,dir){switching=true;slotOpen=false;const w=viewEl.clientWidth||320;
- viewEl.style.transition="transform .19s ease, opacity .19s ease";viewEl.style.opacity="0.5";viewEl.style.transform=`translateX(${-dir*w}px)`;
- setTimeout(()=>{state.tab=tab;save();
-  viewEl.style.transition="none";viewEl.style.transform=`translateX(${dir*w}px)`;renderView();setNavActive();moveInd();
-  requestAnimationFrame(()=>{viewEl.style.transition="transform .24s cubic-bezier(.2,.7,.3,1), opacity .24s";viewEl.style.transform="translateX(0)";viewEl.style.opacity="1";
-   setTimeout(()=>{viewEl.style.transition="";switching=false;if(tab==="search")document.getElementById("sq")?.focus()},250)})},190)}
+function commitTab(tab,dir){
+ switching=true;slotOpen=false;
+ const viewport=document.getElementById("viewport");
+ const w=viewport.clientWidth||viewEl.clientWidth||320;
+ const outgoing=viewEl;
+ const incoming=document.createElement("div");incoming.className="vpage";
+ viewport.appendChild(incoming);
+ viewEl=incoming;state.tab=tab;save();
+ setNavActive();
+ renderView();
+ incoming.style.transition="none";incoming.style.transform=`translateX(${dir*w}px)`;
+ void incoming.offsetWidth;
+ requestAnimationFrame(()=>{
+  outgoing.style.transition=`transform ${PAGE_DUR}ms ${PAGE_EASE}`;
+  incoming.style.transition=`transform ${PAGE_DUR}ms ${PAGE_EASE}`;
+  outgoing.style.transform=`translateX(${-dir*w}px)`;
+  incoming.style.transform="translateX(0)";
+ });
+ setTimeout(moveInd,IND_DELAY);
+ setTimeout(()=>{
+  outgoing.remove();
+  incoming.style.transition="";incoming.style.transform="";
+  switching=false;
+  if(tab==="search")document.getElementById("sq")?.focus();
+ },PAGE_DUR+30);
+}
 
 function momentum(){cancelAnimationFrame(raf);let last=performance.now();
  (function tick(t){const dt=Math.min(34,t-last);last=t;qOffset=clamp(qOffset+vel*dt,0,qMax);vel*=Math.pow(0.94,dt/16);apply();
@@ -332,37 +363,35 @@ function snap(){cancelAnimationFrame(raf);const target=clamp(Math.round(qOffset/
   if(k<1)raf=requestAnimationFrame(st);else{qOffset=target;apply();save()}})(t0)}
 function onWheel(e){if(state.tab!=="home"||selecting)return;e.preventDefault();cancelAnimationFrame(raf);qOffset=clamp(qOffset+e.deltaY,0,qMax);apply();clearTimeout(wheelT);wheelT=setTimeout(snap,110)}
 
-function openSlot(){const sw=document.getElementById("slotwrap");if(!sw)return;slotOpen=true;sw.classList.add("open");
+function openSlot(){const sw=document.getElementById("slotwrap");if(!sw)return;slotOpen=true;sw.classList.add("open");stageEl?.classList.add("adding");
  document.getElementById("si").focus({preventScroll:true});setTimeout(onVV,60)}
-function closeSlot(){const sw=document.getElementById("slotwrap");slotOpen=false;if(sw){sw.classList.remove("open");resetSlotPos()}}
+function closeSlot(){const sw=document.getElementById("slotwrap");slotOpen=false;if(sw){sw.classList.remove("open");resetSlotPos()}stageEl?.classList.remove("adding")}
 function resetSlotPos(){const sw=document.getElementById("slotwrap");if(!sw)return;sw.style.bottom="";sw.style.top=slotCenter+"px";sw.style.transform="translateY(-50%)"}
 function onVV(){const sw=document.getElementById("slotwrap");const vv=window.visualViewport;if(!sw||!slotOpen||!vv)return;
  const kb=window.innerHeight-vv.height-vv.offsetTop;if(kb>80){sw.style.top="auto";sw.style.transform="none";sw.style.bottom=(kb+12)+"px"}else resetSlotPos()}
 if(window.visualViewport){window.visualViewport.addEventListener("resize",onVV);window.visualViewport.addEventListener("scroll",onVV)}
 
-function onGripDown(e,id){e.preventDefault();e.stopPropagation();if(selecting)return;cancelAnimationFrame(raf);
- reActive=active();reFrom=reActive.findIndex(t=>t.id===id);if(reFrom<0)return;reTo=reFrom;
- reEl=qtrackEl.querySelector(`.card[data-idx="${reFrom}"]`);if(!reEl)return;
+function startReorder(id,e){
+ cancelAnimationFrame(raf);
+ reActive=active();reFrom=reActive.findIndex(t=>t.id===id);if(reFrom<0){gripArmed=false;return}
+ reTo=reFrom;
+ reEl=qtrackEl.querySelector(`.card[data-idx="${reFrom}"]`);if(!reEl){gripArmed=false;return}
  reStageTop=stageEl.getBoundingClientRect().top;reTrackTop=qTT-qOffset;
  document.getElementById("slotwrap").style.opacity="0";
  qCards.forEach(el=>el.style.transition="transform .16s cubic-bezier(.2,.7,.3,1)");
  reEl.style.transition="none";reEl.classList.add("lift");
- reGrip=e.currentTarget;try{reGrip.setPointerCapture(e.pointerId)}catch{}
- reMove=ev=>onGripMove(ev);reUp=ev=>onGripUp(ev);
- reGrip.addEventListener("pointermove",reMove);reGrip.addEventListener("pointerup",reUp);reGrip.addEventListener("pointercancel",reUp);
- vibe(14);layoutReorder(e.clientY)}
+ try{viewEl.setPointerCapture(e.pointerId)}catch{}
+ layoutReorder(e.clientY)}
 function layoutReorder(py){const yT=(py-reStageTop)-reTrackTop;
  reEl.style.transform=`translateY(${yT-reFrom*UNIT-CARD_H/2}px) scale(1.03)`;
  const to=clamp(Math.round((yT-CARD_H/2)/UNIT),0,reActive.length-1);if(to!==reTo){reTo=to;vibe(6)}
  qCards.forEach(el=>{if(el===reEl)return;const i=+el.dataset.idx;let s=0;
   if(reFrom<reTo){if(i>reFrom&&i<=reTo)s=-UNIT}else if(reFrom>reTo){if(i>=reTo&&i<reFrom)s=UNIT}
   el.style.transform=`translateY(${s}px)`})}
-function onGripMove(ev){ev.preventDefault();layoutReorder(ev.clientY)}
-function onGripUp(ev){try{reGrip.releasePointerCapture(ev.pointerId)}catch{}
- reGrip.removeEventListener("pointermove",reMove);reGrip.removeEventListener("pointerup",reUp);reGrip.removeEventListener("pointercancel",reUp);
+function finishReorder(e){try{viewEl.releasePointerCapture(e.pointerId)}catch{}
  const arr=reActive.slice();const[m]=arr.splice(reFrom,1);arr.splice(reTo,0,m);arr.forEach((t,i)=>t.order=i);
- state.insertIndex=clamp(state.insertIndex,0,arr.length);save();const moved=reTo!==reFrom;reEl=null;
- buildHome();if(moved){vibe(12);toast((reTo+1)+"번째로 이동")}}
+ state.insertIndex=clamp(state.insertIndex,0,arr.length);save();const didMove=reTo!==reFrom;reEl=null;
+ buildHome();if(didMove){vibe(12);toast((reTo+1)+"번째로 이동")}}
 
 function doneView(){const t=completed();return `<div class="scroller"><div class="list">${t.length?t.map((x,i)=>cardHtml(x,i)).join(""):`<div class="empty"><div class="empty-c"><h3>아직 완료한 일이 없어요</h3><p>끼우 화면에서 체크하면 이곳에 쌓입니다. 해제하면 원래 순번 근처로 돌아가요.</p></div></div>`}</div></div>`}
 function searchResults(q,res){if(!q)return `<div class="empty"><div class="empty-c"><h3>무엇을 찾을까요?</h3><p>제목으로 바로 검색합니다. 완료된 일도 함께 찾아요.</p></div></div>`;
@@ -394,22 +423,21 @@ function startEdit(el,id,ev){if(selecting)return;const t=state.tasks.find(x=>x.i
  el.addEventListener("blur",fin,{once:true});
  el.addEventListener("keydown",e2=>{if(e2.key==="Enter"){e2.preventDefault();el.blur()}if(e2.key==="Escape"){el.textContent=t.title;el.blur()}})}
 
-function wireCards(){document.querySelectorAll(".grip").forEach(g=>g.addEventListener("pointerdown",e=>onGripDown(e,g.dataset.id),{passive:false}))}
-
 function mount(){
- app.innerHTML=`<div id="view"></div>
+ app.innerHTML=`<div id="viewport"></div>
   <nav class="nav" id="nav"><div class="nav-ind" id="navInd"></div>
    <button class="nb" data-tab="home">${I.home}<span>끼우</span></button>
    <button class="nb" data-tab="done">${I.done}<span>완료됨</span></button>
    <button class="nb" data-tab="search">${I.search}<span>찾기</span></button>
    <button class="nb" data-tab="more">${I.more}<span>더보기</span></button></nav>`;
- viewEl=document.getElementById("view");
- viewEl.addEventListener("pointerdown",gDown);
- viewEl.addEventListener("pointermove",gMove);
- viewEl.addEventListener("pointerup",gUp);
- viewEl.addEventListener("pointercancel",gUp);
- viewEl.addEventListener("wheel",onWheel,{passive:false});
- viewEl.addEventListener("click",e=>{if(didScroll){e.stopPropagation();e.preventDefault();didScroll=false}},true);
+ const viewport=document.getElementById("viewport");
+ viewEl=document.createElement("div");viewEl.className="vpage";viewport.appendChild(viewEl);
+ viewport.addEventListener("pointerdown",gDown);
+ viewport.addEventListener("pointermove",gMove);
+ viewport.addEventListener("pointerup",gUp);
+ viewport.addEventListener("pointercancel",gUp);
+ viewport.addEventListener("wheel",onWheel,{passive:false});
+ viewport.addEventListener("click",e=>{if(didScroll){e.stopPropagation();e.preventDefault();didScroll=false}},true);
  renderView();setNavActive();requestAnimationFrame(moveInd);
 }
 app.addEventListener("click",e=>{
