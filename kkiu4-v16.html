@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<title>Kkiu To Do — v16</title>
+<style>
+  html,body{margin:0;height:100%;background:#fbf8f2}
+  body{overflow:hidden;font-family:Pretendard,-apple-system,BlinkMacSystemFont,system-ui,sans-serif}
+  iframe{display:block;width:100%;height:100%;border:0;background:#fbf8f2}
+  .badge{position:fixed;right:12px;top:12px;z-index:10;padding:6px 10px;border-radius:999px;background:rgba(28,26,23,.82);color:#fff;font-size:12px;font-weight:700;letter-spacing:.02em;backdrop-filter:blur(8px)}
+</style>
+</head>
+<body>
+<div class="badge">kkiu4 v16</div>
+<iframe id="appFrame" src="./kkiu4.html" title="kkiu4 v16"></iframe>
+<script>
+const BUILD = "v16";
+const frame = document.getElementById("appFrame");
+
+function installPatch() {
+  const w = frame.contentWindow;
+  const d = frame.contentDocument;
+  if (!w || !d) return;
+
+  d.title = `Kkiu To Do — ${BUILD}`;
+
+  const buildtag = d.getElementById("buildtag");
+  if (buildtag) buildtag.textContent = BUILD;
+
+  const note = d.querySelector(".note");
+  if (note) {
+    note.textContent = "v16 목업 (kkiu4-v16.html) · 스와이프 직후 상단 필터/버튼 클릭 씹힘 회귀 보정 · 제스처별 탭 차단 시간 분리 · 버전 문자열 단일화 · 기존 입력/필터/전환 회귀 방지";
+  }
+
+  const viewport = d.getElementById("viewport");
+  if (!viewport) return;
+
+  let sx = 0;
+  let sy = 0;
+  let axis = null;
+  let moved = 0;
+  let onGrip = false;
+  let suppressUntil = 0;
+
+  const now = () => w.performance.now();
+
+  viewport.addEventListener("pointerdown", e => {
+    sx = e.clientX;
+    sy = e.clientY;
+    axis = null;
+    moved = 0;
+    onGrip = !!e.target.closest(".grip");
+  }, true);
+
+  viewport.addEventListener("pointermove", e => {
+    const dx = e.clientX - sx;
+    const dy = e.clientY - sy;
+    moved = Math.max(moved, Math.abs(dx), Math.abs(dy));
+    if (!axis && moved >= 9) axis = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+  }, true);
+
+  const armSuppress = () => {
+    if (onGrip && moved >= 8) {
+      suppressUntil = now() + 220;
+      return;
+    }
+    if (axis === "h") {
+      suppressUntil = now() + 380;
+      return;
+    }
+    if (axis === "v") {
+      suppressUntil = now() + 120;
+    }
+  };
+
+  viewport.addEventListener("pointerup", armSuppress, true);
+  viewport.addEventListener("pointercancel", armSuppress, true);
+
+  viewport.addEventListener("click", e => {
+    if (e.target.closest(".head, .chips, .asgrow, .hicons, .ttlbtn")) return;
+    if (now() < suppressUntil) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+  }, true);
+}
+
+frame.addEventListener("load", () => {
+  try {
+    installPatch();
+  } catch (err) {
+    console.error("kkiu4 v16 patch install failed", err);
+  }
+});
+</script>
+</body>
+</html>
