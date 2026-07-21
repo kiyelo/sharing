@@ -1,3 +1,0 @@
-import {CircleIcon,HomeIcon,MoreIcon} from './Icons.jsx'
-import {t} from '../i18n.js'
-export default function BottomNav({tab,unread,onChange,lang='ko'}){const items=[['home',t(lang,'home'),HomeIcon],['circle',t(lang,'circle'),CircleIcon],['more',t(lang,'more'),MoreIcon]],idx=Math.max(0,items.findIndex(x=>x[0]===tab));return <nav className="nav" id="nav"><div className="nav-ind" style={{left:'8px',width:'calc((100% - 16px)/3)',transform:`translateX(${idx*100}%)`}}/>{items.map(([id,label,Icon])=><button key={id} data-tab={id} className={`nb${tab===id?' on':''}`} onClick={()=>onChange(id)}><Icon/>{id==='circle'&&unread>0&&<i className="nbadge">{unread>99?'99+':unread}</i>}<span>{label}</span></button>)}</nav>}
