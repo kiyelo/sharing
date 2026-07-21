@@ -1,0 +1,118 @@
+[
+  {
+    "name": "boot-parity",
+    "status": "pass"
+  },
+  {
+    "name": "add-task-at-slot",
+    "status": "pass"
+  },
+  {
+    "name": "edit-task",
+    "status": "pass"
+  },
+  {
+    "name": "complete-restore-delete",
+    "status": "pass"
+  },
+  {
+    "name": "completed-delete",
+    "status": "pass"
+  },
+  {
+    "name": "keyboard-reorder",
+    "status": "pass"
+  },
+  {
+    "name": "longpress-select-all-delete",
+    "status": "pass"
+  },
+  {
+    "name": "search-active-jump",
+    "status": "pass"
+  },
+  {
+    "name": "search-completed-opens-sheet",
+    "status": "pass"
+  },
+  {
+    "name": "circle-filter-and-add-assignee",
+    "status": "pass"
+  },
+  {
+    "name": "circle-picker-switch-join",
+    "status": "pass"
+  },
+  {
+    "name": "circle-manage-identity-invite",
+    "status": "pass"
+  },
+  {
+    "name": "circle-leave-cancel",
+    "status": "pass"
+  },
+  {
+    "name": "more-history-slot-language",
+    "status": "pass"
+  },
+  {
+    "name": "more-unread-reset-cancel",
+    "status": "pass"
+  },
+  {
+    "name": "persistence-reload",
+    "status": "pass"
+  },
+  {
+    "name": "horizontal-tab-swipe",
+    "status": "pass"
+  },
+  {
+    "name": "viewport-no-overflow",
+    "status": "pass"
+  },
+  {
+    "name": "completed-clear-confirm",
+    "status": "pass"
+  },
+  {
+    "name": "circle-create",
+    "status": "pass"
+  },
+  {
+    "name": "circle-invalid-join",
+    "status": "pass"
+  },
+  {
+    "name": "member-keyboard-reorder",
+    "status": "pass"
+  },
+  {
+    "name": "circle-leave-confirm",
+    "status": "pass"
+  },
+  {
+    "name": "circle-delete-confirm",
+    "status": "pass"
+  },
+  {
+    "name": "circle-completed-filter",
+    "status": "pass"
+  },
+  {
+    "name": "english-navigation",
+    "status": "pass"
+  },
+  {
+    "name": "reset-confirm-action",
+    "status": "pass"
+  },
+  {
+    "name": "empty-confirm-action",
+    "status": "pass"
+  },
+  {
+    "name": "backup-restore",
+    "status": "pass"
+  }
+]

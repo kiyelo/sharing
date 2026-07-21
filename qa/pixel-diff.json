@@ -1,0 +1,15 @@
+{
+  "viewport": "390x844",
+  "metric": "mean absolute RGB difference",
+  "states": {
+    "home": 3.41,
+    "input": 3.07,
+    "circle": 2.35,
+    "circleManage": 2.96,
+    "more": 1.26,
+    "search": 1.67,
+    "completed": 3.42
+  },
+  "threshold": 3.5,
+  "result": "pass"
+}

@@ -1,0 +1,22 @@
+{
+  "version": "1.3.0",
+  "oracle": "kkiu4-v18-ux-fixes.html v18.4.8",
+  "errors": [],
+  "checks": {
+    "homeActiveCards": 14,
+    "homeInitialInsert": 5,
+    "searchMarkCount": 1,
+    "searchHitCount": 1,
+    "filteredMemberCards": 1,
+    "filteredGlobalInsert": 12,
+    "collapsedBundles": 1,
+    "expandedGhostRows": 10,
+    "tabFilterPersistence": true,
+    "emojiKeywordResultsForDog": 2,
+    "identityCancelDiscardsDraft": true,
+    "dedicatedSelectionView": true,
+    "selectionHidesNavigation": true,
+    "completionMovesAfter300ms": true,
+    "completedSheetRows": 1
+  }
+}
