@@ -49,12 +49,12 @@ jobs:
       - name: Package Windows app
         shell: pwsh
         run: |
-          Compress-Archive -Path "dialect-test\dist\DialectTest\*" -DestinationPath "DialectTest-Windows.zip"
+          Compress-Archive -Path "dialect-test\dist\DialectTest\*" -DestinationPath "DialectTest-XLSR-Windows.zip"
 
       - name: Upload Windows app
         uses: actions/upload-artifact@v4
         with:
-          name: DialectTest-Windows
-          path: DialectTest-Windows.zip
+          name: DialectTest-XLSR-Windows
+          path: DialectTest-XLSR-Windows.zip
           if-no-files-found: error
           retention-days: 7
