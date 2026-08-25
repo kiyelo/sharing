@@ -15,9 +15,13 @@ from PySide6.QtWidgets import (
     QPushButton, QProgressBar, QMessageBox, QGroupBox
 )
 
-MODEL_ID = "HERIUN/wav2vec-bert-korean-dialect-recognition"
+# 공개 평가 정확도 80.63%인 한국어 6개 권역 방언 분류 모델.
+MODEL_ID = "HERIUN/wav2vec2-xlsr-korean-dialect-recognition"
+MODEL_PUBLIC_ACCURACY = "80.63%"
 SAMPLE_RATE = 16000
 
+# 특정 지역 어휘를 일부러 넣지 않고, 억양/발음 차이가 드러날 수 있는
+# 일상적인 표준어 문장을 섞어 제시한다.
 PROMPTS = [
     "오늘 저녁에는 친구를 만나기로 했어요.",
     "주말에는 가족들과 근처 공원에 다녀왔어요.",
@@ -54,9 +58,9 @@ LABEL_ALIASES = {
 
 def normalize_label(label: str):
     raw = str(label).strip()
-    low = raw.lower().replace("_", "").replace("-", "").replace(" ", "")
+    low = raw.lower().replace("_", "").replace("-", "").replace("/", "").replace(" ", "")
     for key, value in LABEL_ALIASES.items():
-        k = key.lower().replace("_", "").replace("-", "").replace(" ", "")
+        k = key.lower().replace("_", "").replace("-", "").replace("/", "").replace(" ", "")
         if k in low:
             return value
     return None
@@ -72,7 +76,7 @@ class App(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("내 억양은 어디에 가까울까?")
-        self.resize(680, 620)
+        self.resize(680, 650)
         self.frames = []
         self.stream = None
         self.recording = False
@@ -96,7 +100,7 @@ class App(QWidget):
         title.setStyleSheet("font-size: 28px; font-weight: 700; margin-top: 8px;")
         lay.addWidget(title)
 
-        self.guide = QLabel("아래 문장을 자연스럽게 읽어주세요.")
+        self.guide = QLabel("아래 문장을 평소 말하듯 자연스럽게 읽어주세요.")
         self.guide.setAlignment(Qt.AlignCenter)
         self.guide.setStyleSheet("font-size: 15px;")
         lay.addWidget(self.guide)
@@ -124,12 +128,12 @@ class App(QWidget):
         self.analyze_btn.setStyleSheet("font-size: 17px; font-weight: 700;")
         lay.addWidget(self.analyze_btn)
 
-        self.status = QLabel("처음 실행 시 판독 모델을 한 번 내려받습니다.")
+        self.status = QLabel("처음 실행 시 새 판독 모델을 한 번 내려받습니다.")
         self.status.setAlignment(Qt.AlignCenter)
         self.status.setWordWrap(True)
         lay.addWidget(self.status)
 
-        self.result_box = QGroupBox("결과")
+        self.result_box = QGroupBox("분석 결과")
         rb = QVBoxLayout(self.result_box)
         self.top_result = QLabel("")
         self.top_result.setAlignment(Qt.AlignCenter)
@@ -161,8 +165,9 @@ class App(QWidget):
         lay.addWidget(self.retry_btn)
 
         foot = QLabel(
-            "재미로 보는 간이 테스트입니다. 표시되는 수치는 실제 출신지역 확률이 아니라 "
-            "공개 음성 분류 모델의 상대 출력입니다."
+            f"사용 모델: HERIUN XLSR 한국어 방언 분류기 (공개 평가 정확도 {MODEL_PUBLIC_ACCURACY}). "
+            "표시되는 수치는 실제 출신지역 확률이 아니라 모델의 상대 출력입니다. "
+            "공개 평가 조건과 이 앱의 낭독 조건은 다르므로 실제 정확도는 별도로 확인해야 합니다."
         )
         foot.setWordWrap(True)
         foot.setAlignment(Qt.AlignCenter)
@@ -173,7 +178,12 @@ class App(QWidget):
         def worker():
             try:
                 device = 0 if torch.cuda.is_available() else -1
-                model = pipeline("audio-classification", model=MODEL_ID, device=device)
+                model = pipeline(
+                    "audio-classification",
+                    model=MODEL_ID,
+                    device=device,
+                    trust_remote_code=False,
+                )
                 self.signals.model_ready.emit(model)
             except Exception as e:
                 self.signals.error.emit(
@@ -198,7 +208,7 @@ class App(QWidget):
         self.recording = True
         self.record_btn.setText("녹음 종료")
         self.analyze_btn.setEnabled(False)
-        self.status.setText("녹음 중… 문장을 읽은 뒤 녹음 종료를 누르세요.")
+        self.status.setText("녹음 중… 문장을 끝까지 읽은 뒤 녹음 종료를 누르세요.")
 
         def callback(indata, frames, time_info, status):
             if self.recording:
@@ -235,6 +245,18 @@ class App(QWidget):
         if len(audio) < SAMPLE_RATE:
             self.status.setText("녹음이 너무 짧아요. 문장을 끝까지 읽어주세요.")
             return
+
+        # 앞뒤 침묵이 너무 길면 분류가 흔들릴 수 있어 간단히 제거한다.
+        abs_audio = np.abs(audio)
+        threshold = max(0.008, float(np.max(abs_audio)) * 0.03)
+        active = np.where(abs_audio > threshold)[0]
+        if len(active) > 0:
+            pad = int(0.15 * SAMPLE_RATE)
+            start = max(0, int(active[0]) - pad)
+            end = min(len(audio), int(active[-1]) + pad)
+            trimmed = audio[start:end]
+            if len(trimmed) >= SAMPLE_RATE:
+                audio = trimmed
 
         sf.write(RECORDING, audio, SAMPLE_RATE, subtype="PCM_16")
         self.analyze_btn.setEnabled(True)
@@ -278,7 +300,11 @@ class App(QWidget):
             self.bars[region].setValue(round(p * 100))
 
         best_region, best = ordered[0]
-        self.top_result.setText(f"{best_region} 억양과 가장 가깝게 나왔어요\n{best*100:.1f}%")
+        second_region, second = ordered[1]
+        self.top_result.setText(
+            f"{best_region} 억양과 가장 가깝게 나왔어요\n"
+            f"{best*100:.1f}%  ·  다음 후보 {second_region} {second*100:.1f}%"
+        )
         self.result_box.setVisible(True)
         self.retry_btn.setVisible(True)
         self.record_btn.setVisible(False)
