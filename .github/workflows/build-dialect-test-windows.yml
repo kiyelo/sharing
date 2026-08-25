@@ -1,0 +1,60 @@
+name: Build Dialect Test Windows EXE
+
+on:
+  push:
+    branches:
+      - dialect-test-windows-build
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+          cache-dependency-path: dialect-test/requirements.txt
+
+      - name: Install dependencies
+        working-directory: dialect-test
+        run: pip install -r requirements.txt
+
+      - name: Build Windows app
+        working-directory: dialect-test
+        shell: pwsh
+        run: |
+          pyinstaller `
+            --noconfirm `
+            --clean `
+            --windowed `
+            --name DialectTest `
+            --collect-all transformers `
+            --collect-all tokenizers `
+            --collect-all soundfile `
+            --hidden-import sounddevice `
+            app.py
+
+      - name: Verify EXE exists
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dialect-test\dist\DialectTest\DialectTest.exe")) {
+            throw "DialectTest.exe was not created."
+          }
+
+      - name: Package Windows app
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "dialect-test\dist\DialectTest\*" -DestinationPath "DialectTest-Windows.zip"
+
+      - name: Upload Windows app
+        uses: actions/upload-artifact@v4
+        with:
+          name: DialectTest-Windows
+          path: DialectTest-Windows.zip
+          if-no-files-found: error
+          retention-days: 7
